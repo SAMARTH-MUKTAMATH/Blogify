@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,7 +39,7 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
     excerpt: "",
     content: "",
     category: "",
-    author: "Aurora Writer",
+    author: "Your Name",
   });
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -115,7 +114,7 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
       excerpt: "",
       content: "",
       category: "",
-      author: "Aurora Writer",
+      author: "Your Name",
     });
     setSelectedImage(null);
     setImagePreview(null);
@@ -138,26 +137,41 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
             font-family: 'Outfit', sans-serif;
             font-weight: 600;
           }
+
+          .slide-up {
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+          }
+
+          @keyframes slideUp {
+            from {
+              opacity: 0;
+              transform: translateY(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .delay-1 { animation-delay: 0.1s; }
+          .delay-2 { animation-delay: 0.2s; }
+          .delay-3 { animation-delay: 0.3s; }
+          .delay-4 { animation-delay: 0.4s; }
+          .delay-5 { animation-delay: 0.5s; }
+          .delay-6 { animation-delay: 0.6s; }
+          .delay-7 { animation-delay: 0.7s; }
+          .delay-8 { animation-delay: 0.8s; }
         `}
       </style>
       
       <div className="min-h-screen bg-background pt-24 pb-16 px-6">
         <div className="container mx-auto max-w-4xl">
-          <motion.div
-            className="text-center mb-12"
-            initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
-          >
-            <motion.div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/70 text-black"
-              initial={{ opacity: 0, y: -50, rotate: 10 }}
-              animate={{ opacity: 1, y: 0, rotate: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, type: "spring" }}
-            >
+          <div className="text-center mb-12 slide-up delay-1">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/70 text-black">
               <Sparkles className="w-4 h-4" />
               <span className="text-sm font-medium">Content Creation Studio</span>
-            </motion.div>
+            </div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Craft Your{" "}
@@ -166,13 +180,9 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
             <p className="text-xl text-muted-foreground">
               <span className="text-lime-400 font-semibold">Transform your ideas</span> into captivating blog posts
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 100, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3, type: "spring", stiffness: 80 }}
-          >
+          <div className="slide-up delay-2">
             <Card className="aurora-shadow bg-primary/30 backdrop-blur-sm border-border/50">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between form-text">
@@ -202,12 +212,7 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
               <CardContent className="space-y-6">
                 {!isPreviewMode ? (
                   <>
-                    <motion.div
-                      className="space-y-2"
-                      initial={{ opacity: 0, x: 100, rotate: 5 }}
-                      animate={{ opacity: 1, x: 0, rotate: 0 }}
-                      transition={{ duration: 0.6, delay: 0.4, type: "spring" }}
-                    >
+                    <div className="space-y-2 slide-up delay-3">
                       <Label htmlFor="title" className="form-text">Title</Label>
                       <Input
                         id="title"
@@ -216,14 +221,9 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                         onChange={(e) => handleInputChange("title", e.target.value)}
                         className="text-lg font-semibold bg-background/50 form-text"
                       />
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                      className="space-y-2"
-                      initial={{ opacity: 0, x: -100, scale: 0.8 }}
-                      animate={{ opacity: 1, x: 0, scale: 1 }}
-                      transition={{ duration: 0.6, delay: 0.5, type: "spring" }}
-                    >
+                    <div className="space-y-2 slide-up delay-4">
                       <Label htmlFor="excerpt" className="form-text">Excerpt</Label>
                       <Textarea
                         id="excerpt"
@@ -233,14 +233,9 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                         className="bg-background/50 form-text"
                         rows={3}
                       />
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                      initial={{ opacity: 0, y: 50, rotate: -2 }}
-                      animate={{ opacity: 1, y: 0, rotate: 0 }}
-                      transition={{ duration: 0.6, delay: 0.6, type: "spring", stiffness: 120 }}
-                    >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 slide-up delay-5">
                       <div className="space-y-2">
                         <Label htmlFor="category" className="form-text">Category</Label>
                         <Select onValueChange={(value) => handleInputChange("category", value)}>
@@ -261,19 +256,15 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                         <Label htmlFor="author" className="form-text">Author</Label>
                         <Input
                           id="author"
+                          placeholder="Your Name"
                           value={formData.author}
                           onChange={(e) => handleInputChange("author", e.target.value)}
                           className="bg-background/50 form-text"
                         />
                       </div>
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                      className="space-y-2"
-                      initial={{ opacity: 0, scale: 0.7, y: 80 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      transition={{ duration: 0.8, delay: 0.7, type: "spring", stiffness: 90 }}
-                    >
+                    <div className="space-y-2 slide-up delay-6">
                       <Label htmlFor="content" className="form-text">Content</Label>
                       <Textarea
                         id="content"
@@ -286,23 +277,13 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                       <p className="text-sm text-muted-foreground form-text">
                         Tip: You can use HTML tags for rich formatting
                       </p>
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                      className="space-y-2"
-                      initial={{ opacity: 0, x: -150, rotate: 10 }}
-                      animate={{ opacity: 1, x: 0, rotate: 0 }}
-                      transition={{ duration: 0.7, delay: 0.8, type: "spring", stiffness: 100 }}
-                    >
+                    <div className="space-y-2 slide-up delay-7">
                       <Label className="form-text">Featured Image</Label>
                       
                       {imagePreview && (
-                        <motion.div 
-                          className="relative"
-                          initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
-                          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                          transition={{ duration: 0.5, type: "spring" }}
-                        >
+                        <div className="relative slide-up">
                           <img 
                             src={imagePreview} 
                             alt="Preview" 
@@ -316,7 +297,7 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                           >
                             <X className="w-4 h-4" />
                           </Button>
-                        </motion.div>
+                        </div>
                       )}
 
                       <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-background/30">
@@ -342,15 +323,10 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                           )}
                         </label>
                       </div>
-                    </motion.div>
+                    </div>
                   </>
                 ) : (
-                  <motion.div
-                    className="space-y-6"
-                    initial={{ opacity: 0, scale: 0.8, y: 30 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
-                  >
+                  <div className="space-y-6 slide-up">
                     <div className="text-center border-b border-border pb-6">
                       <h1 className="text-3xl md:text-4xl font-bold mb-4 form-text">
                         {formData.title || "Your Post Title"}
@@ -365,18 +341,13 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                     </div>
 
                     {imagePreview && (
-                      <motion.div 
-                        className="w-full"
-                        initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                      >
+                      <div className="w-full slide-up delay-2">
                         <img 
                           src={imagePreview} 
                           alt="Featured" 
                           className="w-full max-w-2xl mx-auto h-64 object-cover rounded-lg"
                         />
-                      </motion.div>
+                      </div>
                     )}
 
                     {formData.excerpt && (
@@ -391,23 +362,18 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                         __html: formData.content || "<p>Start writing your content to see the preview...</p>" 
                       }}
                     />
-                  </motion.div>
+                  </div>
                 )}
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
-          <motion.div
-            className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-lg"
-            initial={{ opacity: 0, y: 100, rotate: -3 }}
-            animate={{ opacity: 1, y: 0, rotate: 0 }}
-            transition={{ duration: 0.8, delay: 0.9, type: "spring", stiffness: 80 }}
-          >
+          <div className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-lg slide-up delay-8">
             <h3 className="font-semibold mb-2 text-primary">Live Publishing</h3>
             <p className="text-sm text-muted-foreground">
               Your posts will appear instantly on the home page after publishing.
             </p>
-          </motion.div>
+          </div>
         </div>
       </div>
     </>
