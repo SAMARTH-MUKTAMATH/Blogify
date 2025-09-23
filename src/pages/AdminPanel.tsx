@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Save, Eye, Upload, Sparkles, X, AlertCircle, AlertTriangle } from "lucide-react";
+import { Save, Eye, Upload, Sparkles, X, AlertCircle, AlertTriangle, User, Calendar, Tag, Clock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -334,13 +334,14 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
               <span className="aurora-text">Story</span>
             </h1>
             <p className="text-base sm:text-xl text-muted-foreground px-4">
-              <span className="text-lime-400 font-semibold">Transform your ideas</span> into captivating blog posts
+              <span className=" font-semibold">Transform your ideas</span> into captivating blog posts
+
             </p>
           </div>
 
           {/* Main Form Card */}
           <div className="slide-up delay-2">
-            <Card className="aurora-shadow bg-primary/30 backdrop-blur-sm border-border/50">
+            <Card className="aurora-shadow bg-primary/20 backdrop-blur-sm border-border/50">
               <CardHeader className="px-4 sm:px-6">
                 <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 form-text">
                   <span className="text-lg sm:text-xl">
@@ -371,7 +372,6 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
               </CardHeader>
 
               <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
-                {/* Rest of your form content stays the same... */}
                 {!isPreviewMode ? (
                   <>
                     {/* Title */}
@@ -509,18 +509,31 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                     </div>
                   </>
                 ) : (
-                  /* Preview Mode */
                   <div className="space-y-4 sm:space-y-6 slide-up">
                     <div className="text-center border-b border-border pb-4 sm:pb-6">
                       <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 form-text px-2">
                         {formData.title || "Your Post Title"}
                       </h1>
-                      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground form-text">
-                        <span>By {formData.author}</span>
+                      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground form-text">
+                        <div className="flex items-center gap-1">
+                          <User className="w-4 h-4" />
+                          <span>{formData.author}</span>
+                        </div>
                         <span>•</span>
-                        <span>{new Date().toLocaleDateString()}</span>
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          <span>{new Date().toLocaleDateString()}</span>
+                        </div>
                         <span>•</span>
-                        <span>{formData.category || "Uncategorized"}</span>
+                        <div className="flex items-center gap-1">
+                          <Tag className="w-4 h-4" />
+                          <span>{formData.category || "Uncategorized"}</span>
+                        </div>
+                        <span>•</span>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>1 min read</span>
+                        </div>
                       </div>
                     </div>
 
@@ -553,42 +566,89 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
           </div>
 
           {/* Info Card */}
-          <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-primary/5 border border-primary/20 rounded-lg slide-up delay-8">
+          {/* <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-primary/5 border border-primary/20 rounded-lg slide-up delay-8">
             <h3 className="font-semibold mb-2 text-primary text-sm sm:text-base">Live Publishing</h3>
             <p className="text-xs sm:text-sm text-muted-foreground">
               Your posts will appear instantly on the home page after publishing.
             </p>
-          </div>
+          </div> */}
+          {/* Minimal margin top */}
+<div className="mt-3 text-center slide-up delay-8">
+  <p className="text-xs sm:text-sm text-muted-foreground form-text">
+    Your posts will appear instantly on the home page after publishing.
+  </p>
+</div>
+
         </div>
       </div>
 
-      {/* Confirmation Dialog */}
+      {/* Fixed Confirmation Dialog - Preview Button Works */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent className="max-w-md">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-500" />
-              Publish Post Confirmation
+        <AlertDialogContent className="max-w-lg aurora-shadow bg-lime-50 dark:bg-lime-950/20 backdrop-blur-sm border border-lime-200 dark:border-lime-800 rounded-xl">
+          <AlertDialogHeader className="text-center pb-4">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-lime-400 to-lime-500 rounded-full flex items-center justify-center mb-4 shadow-xl">
+              <AlertTriangle className="w-8 h-8 text-white drop-shadow-sm" />
+            </div>
+            <AlertDialogTitle className="text-2xl font-bold text-lime-900 dark:text-lime-100 form-text">
+              Ready to Publish?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm space-y-2">
-              <p className="font-medium text-foreground">
-                ⚠️ Once published, posts <span className="text-amber-600 font-semibold">cannot be edited</span> from the app.
-              </p>
-              <p>
-                Please check your preview carefully before publishing. You can only delete and recreate posts after publishing.
-              </p>
-              <p className="text-xs text-muted-foreground mt-3">
-                💡 Use the Preview button to review your post before publishing.
-              </p>
+            <AlertDialogDescription className="text-center space-y-4 pt-3">
+              {/* Important Section */}
+              <div className="bg-lime-100 dark:bg-lime-900/30 backdrop-blur-sm rounded-xl p-5 border border-lime-300 dark:border-lime-700 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="w-7 h-7 bg-gradient-to-br from-lime-500 to-lime-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 shadow-md">
+                    <span className="text-white text-sm font-bold drop-shadow-sm">!</span>
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold text-lime-900 dark:text-lime-100 mb-2 form-text text-base">
+                      Important: Posts cannot be edited after publishing
+                    </p>
+                    <p className="text-sm text-lime-800 dark:text-lime-200 form-text leading-relaxed">
+                      Once published, you can only <strong className="text-lime-900 dark:text-lime-100">delete</strong> and recreate posts. 
+                      Make sure everything looks perfect before proceeding!
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tip Section - SAME BG COLOR AS IMPORTANT */}
+              <div className="bg-lime-100 dark:bg-lime-900/30 backdrop-blur-sm rounded-xl p-4 border border-lime-300 dark:border-lime-700 shadow-sm">
+                <div className="flex items-center gap-3 justify-center">
+                  <div className="w-6 h-6 bg-gradient-to-br from-lime-500 to-lime-600 rounded-full flex items-center justify-center shadow-sm">
+                    <Eye className="w-3 h-3 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-lime-900 dark:text-lime-100 form-text">
+                    💡 Tip: Use the Preview button to review your post first
+                  </span>
+                </div>
+              </div>
+
+              {/* Success Section - Light Lime */}
+              <div className="bg-lime-25 dark:bg-lime-900/10 rounded-lg p-3 border border-lime-200 dark:border-lime-600 shadow-sm">
+                <p className="text-sm text-lime-800 dark:text-lime-200 form-text font-medium">
+                  Your post will appear <span className="font-bold text-lime-700 dark:text-lime-300 bg-lime-200 dark:bg-lime-800 px-1.5 py-0.5 rounded">instantly</span> on the home page
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Check Preview First</AlertDialogCancel>
+          
+          <AlertDialogFooter className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-lime-200 dark:border-lime-700">
+            <AlertDialogCancel 
+              onClick={() => {
+                setShowConfirmDialog(false);
+                setIsPreviewMode(true); // ACTIVATE PREVIEW MODE
+              }}
+              className="w-full sm:w-auto bg-white dark:bg-gray-800 hover:bg-lime-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-lime-200 dark:border-gray-600 font-semibold form-text shadow-md hover:shadow-lg transition-all duration-200"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Check Preview First
+            </AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleConfirmedSave}
-              className="bg-amber-600 hover:bg-amber-700"
+              className="w-full sm:w-auto bg-gradient-to-r from-lime-400 to-lime-500 hover:from-lime-500 hover:to-lime-600 text-white font-bold shadow-lg hover:shadow-xl transition-all duration-200 form-text border-0"
             >
-              Publish Anyway
+              <Sparkles className="w-4 h-4 mr-2 drop-shadow-sm" />
+              Publish Post
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
