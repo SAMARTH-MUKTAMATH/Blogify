@@ -4,8 +4,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Save, Eye, Upload, Sparkles, X } from "lucide-react";
-import { useState } from "react";
+import { Save, Eye, Upload, Sparkles, X, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface BlogPost {
@@ -20,21 +20,14 @@ interface BlogPost {
   image?: string | null;
 }
 
-interface FormData {
-  title: string;
-  excerpt: string;
-  content: string;
-  category: string;
-  author: string;
-}
-
 interface AdminPanelProps {
   onPreview: () => void;
-  onSavePost: (post: Omit<BlogPost, 'id' | 'date' | 'readTime'>) => void;
+  onSavePost: (post: Omit<BlogPost, 'id' | 'date' | 'readTime'>, imageFile?: File) => void;
+  editingPost?: BlogPost | null;
 }
 
-export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
-  const [formData, setFormData] = useState<FormData>({
+export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelProps) => {
+  const [formData, setFormData] = useState({
     title: "",
     excerpt: "",
     content: "",
@@ -44,34 +37,76 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageUploadStatus, setImageUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [uploadError, setUploadError] = useState<string>('');
   const { toast } = useToast();
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  // Populate form when editing
+  useEffect(() => {
+    if (editingPost) {
+      console.log('📝 POPULATING FORM FOR EDITING:', editingPost.id);
+      setFormData({
+        title: editingPost.title,
+        excerpt: editingPost.excerpt,
+        content: editingPost.content,
+        category: editingPost.category,
+        author: editingPost.author,
+      });
+      
+      if (editingPost.image) {
+        setImagePreview(editingPost.image);
+        setImageUploadStatus('success');
+      }
+    } else {
+      setFormData({
+        title: "",
+        excerpt: "",
+        content: "",
+        category: "",
+        author: "Your Name",
+      });
+      setImagePreview(null);
+      setSelectedImage(null);
+      setImageUploadStatus('idle');
+    }
+  }, [editingPost]);
+
+  const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    setImageUploadStatus('idle');
+    setUploadError('');
+    
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
+        const errorMsg = "File too large. Please select an image smaller than 10MB.";
+        setUploadError(errorMsg);
+        setImageUploadStatus('error');
         toast({
           title: "File too large",
-          description: "Please select an image smaller than 10MB.",
+          description: errorMsg,
           variant: "destructive",
         });
         return;
       }
 
       if (!file.type.startsWith('image/')) {
+        const errorMsg = "Invalid file type. Please select an image file (PNG, JPG, GIF).";
+        setUploadError(errorMsg);
+        setImageUploadStatus('error');
         toast({
           title: "Invalid file type",
-          description: "Please select an image file (PNG, JPG, GIF).",
+          description: errorMsg,
           variant: "destructive",
         });
         return;
       }
 
       setSelectedImage(file);
+      setImageUploadStatus('success');
       
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -80,7 +115,7 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
       reader.readAsDataURL(file);
 
       toast({
-        title: "Image uploaded! ✨",
+        title: "Image selected! ✨",
         description: `Selected: ${file.name}`,
       });
     }
@@ -89,9 +124,16 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
   const removeImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
+    setImageUploadStatus('idle');
+    setUploadError('');
+    
+    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.title || !formData.content) {
       toast({
         title: "Missing Information",
@@ -101,28 +143,48 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
       return;
     }
 
-    const newPost = {
-      ...formData,
-      image: imagePreview,
-      category: formData.category || "Uncategorized"
-    };
+    try {
+      setImageUploadStatus('uploading');
 
-    onSavePost(newPost);
+      const newPost = {
+        ...formData,
+        image: imagePreview,
+        category: formData.category || "Uncategorized"
+      };
 
-    setFormData({
-      title: "",
-      excerpt: "",
-      content: "",
-      category: "",
-      author: "Your Name",
-    });
-    setSelectedImage(null);
-    setImagePreview(null);
+      await onSavePost(newPost, selectedImage || undefined);
 
-    toast({
-      title: "Post Published! ✨",
-      description: "Your blog post has been published successfully.",
-    });
+      if (!editingPost) {
+        setFormData({
+          title: "",
+          excerpt: "",
+          content: "",
+          category: "",
+          author: "Your Name",
+        });
+        setSelectedImage(null);
+        setImagePreview(null);
+      }
+      
+      setImageUploadStatus('idle');
+      setUploadError('');
+
+      toast({
+        title: editingPost ? "Post Updated! ✨" : "Post Published! ✨",
+        description: editingPost ? "Your blog post has been updated successfully." : "Your blog post has been published successfully.",
+      });
+
+    } catch (error) {
+      console.error('💥 SAVE ERROR:', error);
+      setImageUploadStatus('error');
+      setUploadError(error instanceof Error ? error.message : 'Unknown error');
+      
+      toast({
+        title: "Save Failed",
+        description: "There was an error saving your post. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const categories = ["Technology", "Design", "UX Design", "Development", "Writing", "Creative"];
@@ -165,34 +227,42 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
         `}
       </style>
       
-      <div className="min-h-screen bg-background pt-24 pb-16 px-6">
-        <div className="container mx-auto max-w-4xl">
-          <div className="text-center mb-12 slide-up delay-1">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/70 text-black">
+      {/* Mobile-Optimized Layout */}
+      <div className="min-h-screen bg-background pt-16 sm:pt-20 md:pt-24 pb-8 px-3 sm:px-4 md:px-6">
+        <div className="container mx-auto max-w-5xl">
+          
+          {/* Header - Mobile Responsive */}
+          <div className="text-center mb-8 sm:mb-12 slide-up delay-1">
+            <div className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 rounded-full bg-primary/70 text-black mb-4">
               <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-medium">Content Creation Studio</span>
+              <span className="text-xs sm:text-sm font-medium">Content Creation Studio</span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 px-2">
               Craft Your{" "}
               <span className="aurora-text">Story</span>
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-base sm:text-xl text-muted-foreground px-4">
               <span className="text-lime-400 font-semibold">Transform your ideas</span> into captivating blog posts
             </p>
           </div>
 
+          {/* Main Form Card - Mobile Responsive */}
           <div className="slide-up delay-2">
             <Card className="aurora-shadow bg-primary/30 backdrop-blur-sm border-border/50">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between form-text">
-                  <span>Write New Post</span>
-                  <div className="flex gap-2">
+              <CardHeader className="px-4 sm:px-6">
+                <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 form-text">
+                  <span className="text-lg sm:text-xl">
+                    {editingPost ? 'Edit Post' : 'Write New Post'}
+                  </span>
+                  
+                  {/* Action Buttons - Mobile Stacked */}
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setIsPreviewMode(!isPreviewMode)}
-                      className="bg-lime-400/20 hover:bg-primary/70 hover:text-black transition-colors duration-200 form-text"
+                      className="bg-lime-400/20 hover:bg-primary/70 hover:text-black transition-colors duration-200 form-text text-xs sm:text-sm"
                     >
                       <Eye className="w-4 h-4 mr-2" />
                       {isPreviewMode ? "Edit" : "Preview"}
@@ -200,51 +270,55 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                     <Button
                       size="sm"
                       onClick={handleSave}
-                      className="bg-primary/30 aurora-glow hover:bg-primary/70 hover:text-black transition-colors duration-200 form-text"
+                      disabled={imageUploadStatus === 'uploading'}
+                      className="bg-primary/30 aurora-glow hover:bg-primary/70 hover:text-black transition-colors duration-200 form-text text-xs sm:text-sm"
                     >
                       <Save className="w-4 h-4 mr-2" />
-                      Publish Post
+                      {imageUploadStatus === 'uploading' ? 'Publishing...' : editingPost ? 'Update Post' : 'Publish Post'}
                     </Button>
                   </div>
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
                 {!isPreviewMode ? (
                   <>
+                    {/* Title - Mobile Responsive */}
                     <div className="space-y-2 slide-up delay-3">
-                      <Label htmlFor="title" className="form-text">Title</Label>
+                      <Label htmlFor="title" className="form-text text-sm">Title</Label>
                       <Input
                         id="title"
                         placeholder="Enter your captivating title..."
                         value={formData.title}
                         onChange={(e) => handleInputChange("title", e.target.value)}
-                        className="text-lg font-semibold bg-background/50 form-text"
+                        className="text-base sm:text-lg font-semibold bg-background/50 form-text"
                       />
                     </div>
 
+                    {/* Excerpt - Mobile Responsive */}
                     <div className="space-y-2 slide-up delay-4">
-                      <Label htmlFor="excerpt" className="form-text">Excerpt</Label>
+                      <Label htmlFor="excerpt" className="form-text text-sm">Excerpt</Label>
                       <Textarea
                         id="excerpt"
-                        placeholder="Write a compelling excerpt that draws readers in..."
+                        placeholder="Write a compelling excerpt..."
                         value={formData.excerpt}
                         onChange={(e) => handleInputChange("excerpt", e.target.value)}
-                        className="bg-background/50 form-text"
+                        className="bg-background/50 form-text text-sm sm:text-base min-h-[80px] sm:min-h-[100px]"
                         rows={3}
                       />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 slide-up delay-5">
+                    {/* Category & Author - Mobile Stack */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 slide-up delay-5">
                       <div className="space-y-2">
-                        <Label htmlFor="category" className="form-text">Category</Label>
-                        <Select onValueChange={(value) => handleInputChange("category", value)}>
-                          <SelectTrigger className="bg-background/50 form-text">
+                        <Label className="form-text text-sm">Category</Label>
+                        <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)}>
+                          <SelectTrigger className="bg-background/50 form-text text-sm">
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
                           <SelectContent className="form-text">
                             {categories.map((category) => (
-                              <SelectItem key={category} value={category} className="form-text">
+                              <SelectItem key={category} value={category} className="form-text text-sm">
                                 {category}
                               </SelectItem>
                             ))}
@@ -253,54 +327,73 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="author" className="form-text">Author</Label>
+                        <Label htmlFor="author" className="form-text text-sm">Author</Label>
                         <Input
                           id="author"
                           placeholder="Your Name"
                           value={formData.author}
                           onChange={(e) => handleInputChange("author", e.target.value)}
-                          className="bg-background/50 form-text"
+                          className="bg-background/50 form-text text-sm"
                         />
                       </div>
                     </div>
 
+                    {/* Content - Mobile Responsive */}
                     <div className="space-y-2 slide-up delay-6">
-                      <Label htmlFor="content" className="form-text">Content</Label>
+                      <Label htmlFor="content" className="form-text text-sm">Content</Label>
                       <Textarea
                         id="content"
                         placeholder="Start writing your amazing story here..."
                         value={formData.content}
                         onChange={(e) => handleInputChange("content", e.target.value)}
-                        className="bg-background/50 min-h-96 form-text"
-                        rows={20}
+                        className="bg-background/50 min-h-[300px] sm:min-h-[400px] form-text text-sm sm:text-base"
+                        rows={15}
                       />
-                      <p className="text-sm text-muted-foreground form-text">
+                      <p className="text-xs text-muted-foreground form-text">
                         Tip: You can use HTML tags for rich formatting
                       </p>
                     </div>
 
+                    {/* Image Upload - Mobile Responsive */}
                     <div className="space-y-2 slide-up delay-7">
-                      <Label className="form-text">Featured Image</Label>
+                      <Label className="form-text text-sm">Featured Image</Label>
                       
+                      {/* Upload Status */}
+                      {imageUploadStatus !== 'idle' && (
+                        <div className={`flex items-center gap-2 p-2 rounded text-xs sm:text-sm ${
+                          imageUploadStatus === 'success' ? 'bg-green-100 text-green-800' :
+                          imageUploadStatus === 'uploading' ? 'bg-blue-100 text-blue-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {imageUploadStatus === 'success' && '✅ Image ready'}
+                          {imageUploadStatus === 'uploading' && '⏳ Uploading...'}
+                          {imageUploadStatus === 'error' && (
+                            <><AlertCircle className="w-4 h-4" /> {uploadError}</>
+                          )}
+                        </div>
+                      )}
+                      
+                      {/* Image Preview - Mobile Responsive */}
                       {imagePreview && (
                         <div className="relative slide-up">
                           <img 
                             src={imagePreview} 
                             alt="Preview" 
-                            className="w-full max-w-md h-48 object-cover rounded-lg border"
+                            className="w-full max-w-sm h-32 sm:h-48 object-cover rounded-lg border mx-auto"
                           />
                           <Button
                             variant="destructive"
                             size="sm"
                             onClick={removeImage}
-                            className="absolute top-2 right-2"
+                            className="absolute top-2 right-2 h-8 w-8 p-0"
                           >
                             <X className="w-4 h-4" />
                           </Button>
                         </div>
                       )}
 
-                      <div className="border-2 border-dashed border-border/50 rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-background/30">
+                      {/* Upload Area - Mobile Responsive */}
+                      <div className="border-2 border-dashed border-border/50 rounded-lg p-4 sm:p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-background/30">
                         <input
                           type="file"
                           accept="image/*"
@@ -309,9 +402,9 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                           id="image-upload"
                         />
                         <label htmlFor="image-upload" className="cursor-pointer">
-                          <Upload className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground form-text">
-                            {selectedImage ? 'Click to change image' : 'Click to upload or drag and drop'}
+                          <Upload className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-muted-foreground" />
+                          <p className="text-xs sm:text-sm text-muted-foreground form-text">
+                            {selectedImage ? 'Tap to change image' : 'Tap to upload image'}
                           </p>
                           <p className="text-xs text-muted-foreground mt-1 form-text">
                             PNG, JPG, GIF up to 10MB
@@ -326,12 +419,13 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                     </div>
                   </>
                 ) : (
-                  <div className="space-y-6 slide-up">
-                    <div className="text-center border-b border-border pb-6">
-                      <h1 className="text-3xl md:text-4xl font-bold mb-4 form-text">
+                  /* Preview Mode - Mobile Responsive */
+                  <div className="space-y-4 sm:space-y-6 slide-up">
+                    <div className="text-center border-b border-border pb-4 sm:pb-6">
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 form-text px-2">
                         {formData.title || "Your Post Title"}
                       </h1>
-                      <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground form-text">
+                      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground form-text">
                         <span>By {formData.author}</span>
                         <span>•</span>
                         <span>{new Date().toLocaleDateString()}</span>
@@ -340,24 +434,27 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
                       </div>
                     </div>
 
+                    {/* Image Preview */}
                     {imagePreview && (
                       <div className="w-full slide-up delay-2">
                         <img 
                           src={imagePreview} 
                           alt="Featured" 
-                          className="w-full max-w-2xl mx-auto h-64 object-cover rounded-lg"
+                          className="w-full max-w-2xl mx-auto h-48 sm:h-64 object-cover rounded-lg"
                         />
                       </div>
                     )}
 
+                    {/* Excerpt */}
                     {formData.excerpt && (
-                      <div className="text-lg text-muted-foreground italic form-text">
+                      <div className="text-base sm:text-lg text-muted-foreground italic form-text px-2">
                         {formData.excerpt}
                       </div>
                     )}
 
+                    {/* Content */}
                     <div 
-                      className="prose prose-lg dark:prose-invert max-w-none form-text"
+                      className="prose prose-sm sm:prose-lg dark:prose-invert max-w-none form-text px-2"
                       dangerouslySetInnerHTML={{ 
                         __html: formData.content || "<p>Start writing your content to see the preview...</p>" 
                       }}
@@ -368,9 +465,10 @@ export const AdminPanel = ({ onPreview, onSavePost }: AdminPanelProps) => {
             </Card>
           </div>
 
-          <div className="mt-8 p-6 bg-primary/5 border border-primary/20 rounded-lg slide-up delay-8">
-            <h3 className="font-semibold mb-2 text-primary">Live Publishing</h3>
-            <p className="text-sm text-muted-foreground">
+          {/* Info Card - Mobile Responsive */}
+          <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-primary/5 border border-primary/20 rounded-lg slide-up delay-8">
+            <h3 className="font-semibold mb-2 text-primary text-sm sm:text-base">Live Publishing</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Your posts will appear instantly on the home page after publishing.
             </p>
           </div>
