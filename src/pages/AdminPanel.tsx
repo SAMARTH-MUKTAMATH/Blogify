@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Save, Eye, Upload, Sparkles, X, AlertCircle } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface BlogPost {
@@ -25,6 +25,80 @@ interface AdminPanelProps {
   onSavePost: (post: Omit<BlogPost, 'id' | 'date' | 'readTime'>, imageFile?: File) => void;
   editingPost?: BlogPost | null;
 }
+
+// Auto-Growing Textarea Component
+const AutoGrowTextarea = ({ 
+  value, 
+  onChange, 
+  placeholder, 
+  className,
+  id,
+  minRows = 5,
+  maxRows = 25
+}: {
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  placeholder: string;
+  className: string;
+  id?: string;
+  minRows?: number;
+  maxRows?: number;
+}) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      // Reset height to auto to calculate new scroll height
+      textarea.style.height = 'auto';
+      
+      // Calculate line height (approximate)
+      const lineHeight = 24;
+      const minHeight = minRows * lineHeight;
+      const maxHeight = maxRows * lineHeight;
+      
+      // Set new height based on content
+      const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight);
+      textarea.style.height = newHeight + 'px';
+      
+      // Show/hide scrollbar
+      if (textarea.scrollHeight > maxHeight) {
+        textarea.style.overflowY = 'auto';
+      } else {
+        textarea.style.overflowY = 'hidden';
+      }
+    }
+  };
+
+  useEffect(() => {
+    adjustHeight();
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(e);
+    // Delay height adjustment to allow for content update
+    setTimeout(adjustHeight, 0);
+  };
+
+  return (
+    <Textarea
+      ref={textareaRef}
+      id={id}
+      value={value}
+      onChange={handleChange}
+      placeholder={placeholder}
+      className={className}
+      rows={minRows}
+      style={{ 
+        resize: 'none',
+        minHeight: `${minRows * 24}px`,
+        maxHeight: `${maxRows * 24}px`,
+        overflowY: 'hidden',
+        transition: 'height 0.1s ease'
+      }}
+    />
+  );
+};
 
 export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelProps) => {
   const [formData, setFormData] = useState({
@@ -227,11 +301,10 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
         `}
       </style>
       
-      {/* Mobile-Optimized Layout */}
       <div className="min-h-screen bg-background pt-16 sm:pt-20 md:pt-24 pb-8 px-3 sm:px-4 md:px-6">
         <div className="container mx-auto max-w-5xl">
           
-          {/* Header - Mobile Responsive */}
+          {/* Header */}
           <div className="text-center mb-8 sm:mb-12 slide-up delay-1">
             <div className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 rounded-full bg-primary/70 text-black mb-4">
               <Sparkles className="w-4 h-4" />
@@ -247,7 +320,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
             </p>
           </div>
 
-          {/* Main Form Card - Mobile Responsive */}
+          {/* Main Form Card */}
           <div className="slide-up delay-2">
             <Card className="aurora-shadow bg-primary/30 backdrop-blur-sm border-border/50">
               <CardHeader className="px-4 sm:px-6">
@@ -256,7 +329,6 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                     {editingPost ? 'Edit Post' : 'Write New Post'}
                   </span>
                   
-                  {/* Action Buttons - Mobile Stacked */}
                   <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                     <Button
                       variant="outline"
@@ -283,7 +355,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
               <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
                 {!isPreviewMode ? (
                   <>
-                    {/* Title - Mobile Responsive */}
+                    {/* Title */}
                     <div className="space-y-2 slide-up delay-3">
                       <Label htmlFor="title" className="form-text text-sm">Title</Label>
                       <Input
@@ -295,20 +367,21 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                       />
                     </div>
 
-                    {/* Excerpt - Mobile Responsive */}
+                    {/* Excerpt - Auto Growing */}
                     <div className="space-y-2 slide-up delay-4">
                       <Label htmlFor="excerpt" className="form-text text-sm">Excerpt</Label>
-                      <Textarea
+                      <AutoGrowTextarea
                         id="excerpt"
-                        placeholder="Write a compelling excerpt..."
                         value={formData.excerpt}
                         onChange={(e) => handleInputChange("excerpt", e.target.value)}
-                        className="bg-background/50 form-text text-sm sm:text-base min-h-[80px] sm:min-h-[100px]"
-                        rows={3}
+                        placeholder="Write a compelling excerpt that draws readers in..."
+                        className="bg-background/50 form-text text-sm sm:text-base border-border/50 focus:border-primary"
+                        minRows={3}
+                        maxRows={6}
                       />
                     </div>
 
-                    {/* Category & Author - Mobile Stack */}
+                    {/* Category & Author */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 slide-up delay-5">
                       <div className="space-y-2">
                         <Label className="form-text text-sm">Category</Label>
@@ -338,27 +411,27 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                       </div>
                     </div>
 
-                    {/* Content - Mobile Responsive */}
+                    {/* Content - Auto Growing */}
                     <div className="space-y-2 slide-up delay-6">
                       <Label htmlFor="content" className="form-text text-sm">Content</Label>
-                      <Textarea
+                      <AutoGrowTextarea
                         id="content"
-                        placeholder="Start writing your amazing story here..."
                         value={formData.content}
                         onChange={(e) => handleInputChange("content", e.target.value)}
-                        className="bg-background/50 min-h-[300px] sm:min-h-[400px] form-text text-sm sm:text-base"
-                        rows={15}
+                        placeholder="Start writing your amazing story here..."
+                        className="bg-background/50 form-text text-sm sm:text-base border-border/50 focus:border-primary"
+                        minRows={5}
+                        maxRows={20}
                       />
                       <p className="text-xs text-muted-foreground form-text">
                         Tip: You can use HTML tags for rich formatting
                       </p>
                     </div>
 
-                    {/* Image Upload - Mobile Responsive */}
+                    {/* Image Upload */}
                     <div className="space-y-2 slide-up delay-7">
                       <Label className="form-text text-sm">Featured Image</Label>
                       
-                      {/* Upload Status */}
                       {imageUploadStatus !== 'idle' && (
                         <div className={`flex items-center gap-2 p-2 rounded text-xs sm:text-sm ${
                           imageUploadStatus === 'success' ? 'bg-green-100 text-green-800' :
@@ -373,7 +446,6 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                         </div>
                       )}
                       
-                      {/* Image Preview - Mobile Responsive */}
                       {imagePreview && (
                         <div className="relative slide-up">
                           <img 
@@ -392,7 +464,6 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                         </div>
                       )}
 
-                      {/* Upload Area - Mobile Responsive */}
                       <div className="border-2 border-dashed border-border/50 rounded-lg p-4 sm:p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-background/30">
                         <input
                           type="file"
@@ -419,7 +490,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                     </div>
                   </>
                 ) : (
-                  /* Preview Mode - Mobile Responsive */
+                  /* Preview Mode */
                   <div className="space-y-4 sm:space-y-6 slide-up">
                     <div className="text-center border-b border-border pb-4 sm:pb-6">
                       <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 form-text px-2">
@@ -434,7 +505,6 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                       </div>
                     </div>
 
-                    {/* Image Preview */}
                     {imagePreview && (
                       <div className="w-full slide-up delay-2">
                         <img 
@@ -445,14 +515,12 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                       </div>
                     )}
 
-                    {/* Excerpt */}
                     {formData.excerpt && (
                       <div className="text-base sm:text-lg text-muted-foreground italic form-text px-2">
                         {formData.excerpt}
                       </div>
                     )}
 
-                    {/* Content */}
                     <div 
                       className="prose prose-sm sm:prose-lg dark:prose-invert max-w-none form-text px-2"
                       dangerouslySetInnerHTML={{ 
@@ -465,7 +533,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
             </Card>
           </div>
 
-          {/* Info Card - Mobile Responsive */}
+          {/* Info Card */}
           <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-primary/5 border border-primary/20 rounded-lg slide-up delay-8">
             <h3 className="font-semibold mb-2 text-primary text-sm sm:text-base">Live Publishing</h3>
             <p className="text-xs sm:text-sm text-muted-foreground">
