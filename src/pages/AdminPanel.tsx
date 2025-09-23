@@ -4,9 +4,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Save, Eye, Upload, Sparkles, X, AlertCircle } from "lucide-react";
+import { Save, Eye, Upload, Sparkles, X, AlertCircle, AlertTriangle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface BlogPost {
   id: number;
@@ -49,19 +59,13 @@ const AutoGrowTextarea = ({
   const adjustHeight = () => {
     const textarea = textareaRef.current;
     if (textarea) {
-      // Reset height to auto to calculate new scroll height
       textarea.style.height = 'auto';
-      
-      // Calculate line height (approximate)
       const lineHeight = 24;
       const minHeight = minRows * lineHeight;
       const maxHeight = maxRows * lineHeight;
-      
-      // Set new height based on content
       const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight);
       textarea.style.height = newHeight + 'px';
       
-      // Show/hide scrollbar
       if (textarea.scrollHeight > maxHeight) {
         textarea.style.overflowY = 'auto';
       } else {
@@ -76,7 +80,6 @@ const AutoGrowTextarea = ({
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e);
-    // Delay height adjustment to allow for content update
     setTimeout(adjustHeight, 0);
   };
 
@@ -113,6 +116,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUploadStatus, setImageUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [uploadError, setUploadError] = useState<string>('');
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { toast } = useToast();
 
   // Populate form when editing
@@ -207,7 +211,8 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
     }
   };
 
-  const handleSave = async () => {
+  // Handle save button click - show confirmation for new posts
+  const handleSaveClick = () => {
     if (!formData.title || !formData.content) {
       toast({
         title: "Missing Information",
@@ -217,6 +222,19 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
       return;
     }
 
+    // If editing existing post, save directly
+    if (editingPost) {
+      handleConfirmedSave();
+    } else {
+      // For new posts, show confirmation dialog
+      setShowConfirmDialog(true);
+    }
+  };
+
+  // Actually save the post after confirmation
+  const handleConfirmedSave = async () => {
+    setShowConfirmDialog(false);
+    
     try {
       setImageUploadStatus('uploading');
 
@@ -341,7 +359,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                     </Button>
                     <Button
                       size="sm"
-                      onClick={handleSave}
+                      onClick={handleSaveClick}
                       disabled={imageUploadStatus === 'uploading'}
                       className="bg-primary/30 aurora-glow hover:bg-primary/70 hover:text-black transition-colors duration-200 form-text text-xs sm:text-sm"
                     >
@@ -353,6 +371,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
               </CardHeader>
 
               <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6">
+                {/* Rest of your form content stays the same... */}
                 {!isPreviewMode ? (
                   <>
                     {/* Title */}
@@ -367,7 +386,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                       />
                     </div>
 
-                    {/* Excerpt - Auto Growing */}
+                    {/* Excerpt */}
                     <div className="space-y-2 slide-up delay-4">
                       <Label htmlFor="excerpt" className="form-text text-sm">Excerpt</Label>
                       <AutoGrowTextarea
@@ -411,7 +430,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                       </div>
                     </div>
 
-                    {/* Content - Auto Growing */}
+                    {/* Content */}
                     <div className="space-y-2 slide-up delay-6">
                       <Label htmlFor="content" className="form-text text-sm">Content</Label>
                       <AutoGrowTextarea
@@ -542,6 +561,38 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
           </div>
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              Publish Post Confirmation
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm space-y-2">
+              <p className="font-medium text-foreground">
+                ⚠️ Once published, posts <span className="text-amber-600 font-semibold">cannot be edited</span> from the app.
+              </p>
+              <p>
+                Please check your preview carefully before publishing. You can only delete and recreate posts after publishing.
+              </p>
+              <p className="text-xs text-muted-foreground mt-3">
+                💡 Use the Preview button to review your post before publishing.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Check Preview First</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmedSave}
+              className="bg-amber-600 hover:bg-amber-700"
+            >
+              Publish Anyway
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

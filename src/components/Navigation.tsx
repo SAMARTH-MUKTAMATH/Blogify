@@ -28,6 +28,24 @@ export const Navigation = ({ currentPage, onNavigate }: NavigationProps) => {
     setIsMobileMenuOpen(false);
   };
 
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.mobile-menu-container') && !target.closest('.mobile-menu-button')) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isMobileMenuOpen]);
+
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'admin', label: 'Write', icon: PenTool },
@@ -48,25 +66,14 @@ export const Navigation = ({ currentPage, onNavigate }: NavigationProps) => {
             background-clip: text;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
           }
-          
-          /* Only fix: Add padding to prevent content hiding */
-          body {
-            padding-top: 60px;
-          }
-          
-          @media (max-width: 640px) {
-            body {
-              padding-top: 56px;
-            }
-          }
         `}
       </style>
       
       <motion.nav 
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled 
-            ? 'bg-primary/15 border-b border-border/80' 
-            : 'bg-primary/15 border-b border-border/50'
+            ? 'bg-primary/20 border-b border-border/80 backdrop-blur-md' 
+            : 'bg-primary/15 border-b border-border/50 backdrop-blur-sm'
         }`}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -163,7 +170,7 @@ export const Navigation = ({ currentPage, onNavigate }: NavigationProps) => {
 
             {/* Mobile Menu Button */}
             <motion.button
-              className="md:hidden p-2 rounded-lg hover:bg-slate-800 hover:text-slate-100 transition-colors border-2 border-primary/60 hover:border-slate-700"
+              className="mobile-menu-button md:hidden p-2 rounded-lg hover:bg-slate-800 hover:text-slate-100 transition-colors border-2 border-primary/60 hover:border-slate-700 relative z-50"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -196,54 +203,55 @@ export const Navigation = ({ currentPage, onNavigate }: NavigationProps) => {
         </div>
       </motion.nav>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu - Same Colors as Desktop Navbar */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
-            className="fixed top-[56px] left-4 right-4 bg-primary/20 rounded-xl border border-border/80 shadow-2xl z-40 md:hidden overflow-hidden"
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="p-4 space-y-2">
-              {navItems.map((item, index) => {
-                const IconComponent = item.icon;
-                const isActive = currentPage === item.id;
-                
-                return (
-                  <motion.div
-                    key={item.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                  >
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 bg-black/40 z-40 md:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            />
+
+            {/* Mobile Menu */}
+            <motion.div
+              className="mobile-menu-container fixed top-16 left-4 right-4 aurora-shadow bg-primary/30 backdrop-blur-sm border-border/50 rounded-xl z-50 md:hidden"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="p-4 space-y-2">
+                {navItems.map((item) => {
+                  const IconComponent = item.icon;
+                  const isActive = currentPage === item.id;
+                  
+                  return (
                     <Button
-                      variant="ghost"
-                      size="sm"
+                      key={item.id}
+                      variant={isActive ? "default" : "ghost"}
+                      size="lg"
                       onClick={() => handleNavigate(item.id as 'home' | 'admin')}
-                      className={`w-full flex items-center gap-3 justify-start h-12 text-left transition-all duration-200 border-2 ${
+                      className={`w-full flex items-center gap-3 justify-start h-12 text-left transition-all duration-300 border-2 ${
                         isActive 
-                          ? "bg-primary/10 text-primary border-primary" 
-                          : "hover:bg-slate-800 hover:text-slate-100 hover:border-slate-700 border-primary/60"
+                          ? "bg-primary text-primary-foreground shadow-lg border-primary" 
+                          : "hover:bg-slate-800 hover:text-slate-100 hover:border-slate-700 border-primary/60 bg-background/50"
                       }`}
                     >
                       <IconComponent className="w-5 h-5" />
                       <span className="font-medium">{item.label}</span>
                       {isActive && (
-                        <motion.div
-                          className="ml-auto w-2 h-2 bg-primary rounded-full"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{ delay: 0.2 }}
-                        />
+                        <div className="ml-auto w-2 h-2 bg-primary-foreground rounded-full" />
                       )}
                     </Button>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>
