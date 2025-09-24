@@ -1,10 +1,12 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { BlogCard } from "@/components/BlogCard";
 import { FloatingElements } from "@/components/FloatingElements";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Sparkles, TrendingUp } from "lucide-react";
+import { Search, Sparkles, TrendingUp, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
+import { Footer } from "@/components/Footer";
+
 
 interface BlogPost {
   id: number;
@@ -26,8 +28,10 @@ interface BlogHomeProps {
 export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [showAllCategories, setShowAllCategories] = useState(false);
 
-  const categories = ["All", "Technology", "Design", "UX Design", "Development", "Writing", "Creative"];
+  const initialCategories = ["All", "Technology", "Design", "UX Design", "Development", "Writing", "Creative"];
+  const additionalCategories = ["AI", "Tools", "Photography", "Entertainment", "Finance", "Lifestyle", "Food", "Travel", "Health", "Crypto", "Database", "Cloud", "DevOps", "Security", "Mobile", "API"];
 
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -107,21 +111,93 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
           >
-            {categories.map((category) => (
-              <Button
+            {/* Initial Categories */}
+            {initialCategories.map((category) => (
+              <motion.div
                 key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-                className={`transition-all duration-300 ${
-                  selectedCategory === category 
-                    ? "aurora-glow bg-primary" 
-                    : "hover:bg-secondary"
-                }`}
+                whileHover={{
+                  scale: 1.05,
+                  y: -2,
+                  transition: { duration: 0.2 }
+                }}
+                whileTap={{ scale: 0.95 }}
               >
-                {category}
-              </Button>
+                <Button
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category)}
+                  className={`transition-all duration-300 ${
+                    selectedCategory === category 
+                      ? "aurora-glow bg-primary" 
+                      : "hover:bg-primary/20 hover:shadow-md"
+                  }`}
+                >
+                  {category}
+                </Button>
+              </motion.div>
             ))}
+            
+            {/* Expand/Collapse Button */}
+            <motion.div
+              whileHover={{
+                scale: 1.05,
+                y: -2,
+                transition: { duration: 0.2 }
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAllCategories(!showAllCategories)}
+                className="transition-all duration-300 hover:bg-primary/20 hover:shadow-md"
+              >
+                <MoreHorizontal className="w-4 h-4" />
+                {showAllCategories ? "Less" : "More"}
+              </Button>
+            </motion.div>
+
+            {/* Additional Categories with Animation - NO DUPLICATE "All" */}
+            <AnimatePresence>
+              {showAllCategories && (
+                <motion.div
+                  className="flex flex-wrap gap-2 justify-center w-full mt-2"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {additionalCategories.map((category, index) => (
+                    <motion.div
+                      key={category}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.2, delay: index * 0.02 }}
+                      whileHover={{
+                        scale: 1.05,
+                        y: -2,
+                        transition: { duration: 0.2 }
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Button
+                        variant={selectedCategory === category ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setSelectedCategory(category)}
+                        className={`transition-all duration-300 ${
+                          selectedCategory === category 
+                            ? "aurora-glow bg-primary" 
+                            : "hover:bg-primary/20 hover:shadow-md"
+                        }`}
+                      >
+                        {category}
+                      </Button>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </div>
       </section>
@@ -163,3 +239,4 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
     </div>
   );
 };
+<Footer />

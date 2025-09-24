@@ -17,6 +17,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Footer } from "@/components/Footer";
+
+
 
 interface BlogPost {
   id: number;
@@ -656,3 +659,4 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
     </>
   );
 };
+<Footer />
