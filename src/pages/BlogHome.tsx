@@ -43,7 +43,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
     <div className="min-h-screen bg-background relative">
       <FloatingElements />
       
-      <section className="relative pt-24 pb-16 px-6">
+      <section className="relative pt-24 pb-16 px-3 sm:px-6">
         <div className="container mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -52,24 +52,25 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
             className="max-w-4xl mx-auto"
           >
             <motion.div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/50 text-black"
+              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-primary/50 text-black"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Sparkles className="w-4 h-4" />
-              <span className="text-sm font-medium">Ideas Written, Minds Enlightened</span>
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-sm font-medium">Ideas Written, Minds Enlightened</span>
             </motion.div>
 
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 leading-tight px-2">
               Stories that{" "}
               <span className="aurora-text">Illuminate</span>
               <br />
-              the Digital Sky
+              the Digital <br /> Sky
             </h1>
             
+            {/* SAME TEXT BUT BETTER MOBILE RESPONSIVE */}
             <motion.p
-              className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto"
+              className="text-sm sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 md:mb-12 max-w-xs sm:max-w-2xl mx-auto px-3 sm:px-4 leading-relaxed"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
@@ -78,41 +79,43 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
               like the northern lights across a starlit sky.
             </motion.p>
 
-            {/* UPDATED RESPONSIVE SEARCH SECTION */}
+            {/* SEARCH SECTION - SIDE BY SIDE ON ALL SCREENS */}
             <motion.div
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center mb-12 sm:mb-16 px-4 sm:px-0"
+              className="flex gap-2 sm:gap-4 justify-center items-center mb-8 sm:mb-12 px-2 sm:px-4 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              {/* Search Bar */}
-              <div className="relative w-full sm:max-w-md">
+              {/* Search Bar - Flexible width */}
+              <div className="relative flex-1 min-w-0">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
                 <Input
                   placeholder="Search for inspiration..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 sm:py-2 bg-card/50 border-border/50 backdrop-blur-sm text-sm sm:text-base"
+                  className="w-full pl-10 pr-3 py-2.5 bg-card/50 border-border/50 backdrop-blur-sm text-sm"
                 />
               </div>
               
-              {/* Trending Button */}
+              {/* Trending Button - Fixed width */}
               <Button 
-                className="w-full sm:w-auto bg-primary hover:bg-primary/90 aurora-glow transition-all duration-300 py-2.5 sm:py-2 text-sm sm:text-base font-medium whitespace-nowrap"
+                className="flex-shrink-0 bg-primary hover:bg-primary/90 aurora-glow transition-all duration-300 py-2.5 px-3 sm:px-6 text-sm font-medium whitespace-nowrap"
                 size="default"
               >
-                <TrendingUp className="w-4 h-4 mr-2 flex-shrink-0" />
-                Trending
+                <TrendingUp className="w-4 h-4 mr-1 sm:mr-2 flex-shrink-0" />
+                <span className="hidden xs:inline sm:inline">Trending</span>
+                <span className="xs:hidden sm:hidden">📈</span>
               </Button>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
-      <section className="px-6 mb-12">
+      {/* RESPONSIVE CATEGORIES SECTION */}
+      <section className="px-3 sm:px-6 mb-8 sm:mb-12">
         <div className="container mx-auto">
           <motion.div
-            className="flex flex-wrap gap-2 justify-center"
+            className="flex flex-wrap gap-1.5 sm:gap-2 justify-center max-w-4xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
@@ -132,7 +135,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
                   variant={selectedCategory === category ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
-                  className={`transition-all duration-300 ${
+                  className={`text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 transition-all duration-300 whitespace-nowrap ${
                     selectedCategory === category 
                       ? "aurora-glow bg-primary" 
                       : "hover:bg-primary/20 hover:shadow-md"
@@ -156,18 +159,18 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowAllCategories(!showAllCategories)}
-                className="transition-all duration-300 hover:bg-primary/20 hover:shadow-md"
+                className="text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 transition-all duration-300 hover:bg-primary/20 hover:shadow-md whitespace-nowrap"
               >
-                <MoreHorizontal className="w-4 h-4" />
+                <MoreHorizontal className="w-3 h-3 sm:w-4 sm:h-4" />
                 {showAllCategories ? "Less" : "More"}
               </Button>
             </motion.div>
 
-            {/* Additional Categories with Animation */}
+            {/* Additional Categories */}
             <AnimatePresence>
               {showAllCategories && (
                 <motion.div
-                  className="flex flex-wrap gap-2 justify-center w-full mt-2"
+                  className="flex flex-wrap gap-1.5 sm:gap-2 justify-center w-full mt-2"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
@@ -191,7 +194,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
                         variant={selectedCategory === category ? "default" : "outline"}
                         size="sm"
                         onClick={() => setSelectedCategory(category)}
-                        className={`transition-all duration-300 ${
+                        className={`text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 transition-all duration-300 whitespace-nowrap ${
                           selectedCategory === category 
                             ? "aurora-glow bg-primary" 
                             : "hover:bg-primary/20 hover:shadow-md"
@@ -208,7 +211,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
         </div>
       </section>
 
-      <section className="px-6 pb-16">
+      <section className="px-3 sm:px-6 pb-16">
         <div className="container mx-auto">
           <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
@@ -233,9 +236,9 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-2xl font-bold mb-2">No posts found</h3>
-              <p className="text-muted-foreground">
+              <div className="text-4xl sm:text-6xl mb-4">🔍</div>
+              <h3 className="text-xl sm:text-2xl font-bold mb-2">No posts found</h3>
+              <p className="text-muted-foreground text-sm sm:text-base px-4">
                 {posts.length === 0 ? "Create your first post to get started!" : "Try adjusting your search or filter criteria"}
               </p>
             </motion.div>
