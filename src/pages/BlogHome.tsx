@@ -7,7 +7,6 @@ import { Search, Sparkles, TrendingUp, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { Footer } from "@/components/Footer";
 
-
 interface BlogPost {
   id: number;
   title: string;
@@ -79,23 +78,30 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
               like the northern lights across a starlit sky.
             </motion.p>
 
+            {/* UPDATED RESPONSIVE SEARCH SECTION */}
             <motion.div
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center mb-12 sm:mb-16 px-4 sm:px-0"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              <div className="relative max-w-md w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              {/* Search Bar */}
+              <div className="relative w-full sm:max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
                 <Input
                   placeholder="Search for inspiration..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-card/50 border-border/50 backdrop-blur-sm"
+                  className="w-full pl-10 pr-4 py-2.5 sm:py-2 bg-card/50 border-border/50 backdrop-blur-sm text-sm sm:text-base"
                 />
               </div>
-              <Button className="bg-primary hover:bg-primary/90 aurora-glow transition-all duration-300">
-                <TrendingUp className="w-4 h-4 mr-2" />
+              
+              {/* Trending Button */}
+              <Button 
+                className="w-full sm:w-auto bg-primary hover:bg-primary/90 aurora-glow transition-all duration-300 py-2.5 sm:py-2 text-sm sm:text-base font-medium whitespace-nowrap"
+                size="default"
+              >
+                <TrendingUp className="w-4 h-4 mr-2 flex-shrink-0" />
                 Trending
               </Button>
             </motion.div>
@@ -157,7 +163,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
               </Button>
             </motion.div>
 
-            {/* Additional Categories with Animation - NO DUPLICATE "All" */}
+            {/* Additional Categories with Animation */}
             <AnimatePresence>
               {showAllCategories && (
                 <motion.div
@@ -205,7 +211,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
       <section className="px-6 pb-16">
         <div className="container mx-auto">
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 1 }}
@@ -239,4 +245,5 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
     </div>
   );
 };
+
 <Footer />
