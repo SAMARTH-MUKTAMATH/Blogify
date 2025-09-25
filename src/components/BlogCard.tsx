@@ -35,7 +35,7 @@ export const BlogCard = ({ post, index, onClick }: BlogCardProps) => {
       className="group cursor-pointer"
       onClick={onClick}
     >
-      <Card className="h-full overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 border border-slate-200/50 bg-white/80 backdrop-blur-sm">
+      <Card className="h-full overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-primary/30 transition-all duration-300 border border-slate-200/50 bg-white/80 backdrop-blur-sm">
         
         {/* Image Container */}
         <div className="relative h-48 overflow-hidden">
@@ -47,7 +47,7 @@ export const BlogCard = ({ post, index, onClick }: BlogCardProps) => {
             />
           ) : (
             <motion.div
-              className="w-full h-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center scale-110 group-hover:scale-125 transition-all duration-700 ease-out"
+              className="w-full h-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center scale-110 group-hover:scale-125 transition-all duration-700 ease-out"
             >
               <div className="text-4xl font-bold text-white/80">
                 {post.title.charAt(0)}
@@ -56,7 +56,7 @@ export const BlogCard = ({ post, index, onClick }: BlogCardProps) => {
           )}
           
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-          <Badge className="absolute top-4 left-4 bg-blue-600/90 text-white">
+          <Badge className="absolute top-4 left-4 bg-primary/90 text-white">
             {post.category}
           </Badge>
         </div>

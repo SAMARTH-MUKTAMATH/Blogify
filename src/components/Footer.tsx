@@ -243,7 +243,7 @@ export const Footer = () => {
                   href="https://github.com/SAMARTH-MUKTAMATH"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-lg hover:bg-slate-700 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
+                  className="p-2 rounded-lg hover:bg-slate-900 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
                 >
                   <Github className="w-5 h-5" />
                 </a>
@@ -251,13 +251,13 @@ export const Footer = () => {
                   href="https://www.linkedin.com/in/samarthmuktamath"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-lg hover:bg-slate-700 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
+                  className="p-2 rounded-lg hover:bg-slate-900 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
                 >
                   <Linkedin className="w-5 h-5" />
                 </a>
                 <a 
                   href="mailto:samarthmise2025@gmail.com"
-                  className="p-2 rounded-lg hover:bg-slate-700 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
+                  className="p-2 rounded-lg hover:bg-slate-900 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
                 >
                   <Mail className="w-5 h-5" />
                 </a>
