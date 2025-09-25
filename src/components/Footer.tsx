@@ -3,42 +3,45 @@ import { Github, Linkedin, Mail, Heart } from "lucide-react";
 export const Footer = () => {
   return (
     <footer className="bg-primary/10 border-t border-border/50 backdrop-blur-sm mt-8">
-      <div className="container mx-auto px-6 py-2">
+      <div className="container mx-auto px-3 sm:px-4 md:px-6 py-2">
         <div className="flex flex-col gap-2">
           
           {/* Top Section - Brand and Description */}
-          <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-3">
             
-            {/* Left Side - Content ONLY */}
+            {/* Left Side - Content */}
             <div className="flex-1">
-              <h3 className="text-lg font-bold mb-2">
+              <h3 className="text-base sm:text-lg font-bold mb-2">
                 Blog<span className="text-primary">ify</span>
               </h3>
               
-              <div className="text-muted-foreground text-xs mb-1">
-                Illuminating the digital sky with captivating stories, insights, and ideas that inspire.
-                <br />
-                <span className="text-muted-foreground/50">Where creativity meets technology, and every word builds bridges between minds.</span>
+              <div className="text-muted-foreground text-xs sm:text-sm mb-1">
+                <div className="mb-1">
+                  Illuminating the digital sky with captivating stories, insights, and ideas that inspire.
+                </div>
+                <div className="text-muted-foreground/50">
+                  Where creativity meets technology, and every word builds bridges between minds.
+                </div>
               </div>
             </div>
 
-            {/* Right Side - Only Main Illustrations and Social Icons Below */}
-            <div className="flex flex-col items-center md:items-start gap-2">
+            {/* Right Side - Illustration and Social Icons */}
+            <div className="flex flex-col items-center lg:items-start gap-2">
               
-              {/* Main Illustrations (Only one kept) - LIGHT PRIMARY/LIME GREEN VARIANTS */}
-              <div className="w-96 h-16">
+              {/* Main Illustration - Responsive SVG */}
+              <div className="w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl h-12 sm:h-14 md:h-16">
                 <svg 
                   width="100%" 
                   height="100%" 
                   viewBox="0 0 480 80" 
                   xmlns="http://www.w3.org/2000/svg"
+                  className="overflow-visible"
                 >
                   {/* Transparent background */}
                   <rect width="480" height="80" fill="transparent"/>
                   
-                  {/* LEFT AREA - Tech Developer - LIGHT LIME GREEN */}
+                  {/* LEFT AREA - Tech Developer */}
                   <g transform="translate(10, 5)">
-                    {/* Tech person with laptop */}
                     <circle cx="15" cy="12" r="6" fill="#bfdbfe" stroke="#e0e7ff" strokeWidth="1.2" />
                     <path d="M 9 9 Q 15 4 21 9 Q 19 6 15 5 Q 11 6 9 9" fill="#a5b4fc" stroke="#e0e7ff" strokeWidth="0.8" />
                     <circle cx="12" cy="10" r="0.8" fill="#4c1d95" />
@@ -49,7 +52,7 @@ export const Footer = () => {
                     <rect x="4" y="21" width="5" height="8" rx="2.5" fill="#bfdbfe" stroke="#e0e7ff" strokeWidth="0.6" />
                     <rect x="21" y="21" width="5" height="8" rx="2.5" fill="#bfdbfe" stroke="#e0e7ff" strokeWidth="0.6" />
                     
-                    {/* Laptop on lap */}
+                    {/* Laptop */}
                     <rect x="7" y="33" width="16" height="10" rx="1" fill="#4c1d95" stroke="#e0e7ff" strokeWidth="0.8" />
                     <rect x="8" y="34" width="14" height="8" rx="0.5" fill="#312e81" />
                     <rect x="9" y="35" width="12" height="5" rx="0.3" fill="#a7f3d0" opacity="0.6" />
@@ -71,9 +74,8 @@ export const Footer = () => {
                     <circle cx="42" cy="12" r="0.8" fill="#34d399" />
                   </g>
                   
-                  {/* CENTER-LEFT AREA - Blogging Tools - LIGHT LIME GREEN */}
+                  {/* CENTER-LEFT AREA - Blogging Tools */}
                   <g transform="translate(110, 5)">
-                    {/* Main Book/Journal */}
                     <rect x="0" y="20" width="60" height="20" rx="2" fill="#4c1d95" stroke="#a5b4fc" strokeWidth="0.8" />
                     <rect x="1" y="21" width="58" height="18" rx="1.5" fill="#f0f9ff" stroke="#a5b4fc" strokeWidth="0.5" />
                     <rect x="29" y="21" width="1" height="18" fill="#a5b4fc" opacity="0.6" />
@@ -94,7 +96,7 @@ export const Footer = () => {
                     <rect x="32" y="33" width="17" height="1" rx="0.5" fill="#22c55e" opacity="0.7" />
                     <rect x="32" y="35.5" width="18" height="1" rx="0.5" fill="#34d399" opacity="0.6" />
                     
-                    {/* Coffee cup above book */}
+                    {/* Coffee cup */}
                     <rect x="8" y="8" width="10" height="12" rx="5" fill="#4c1d95" stroke="#a5b4fc" strokeWidth="0.8" />
                     <rect x="18" y="11" width="4" height="3" rx="1.5" fill="#6b7280" />
                     <ellipse cx="13" cy="9" rx="4" ry="1.5" fill="#312e81" />
@@ -104,7 +106,7 @@ export const Footer = () => {
                     <path d="M 11 6 Q 12 2 11 -2" stroke="#a5b4fc" strokeWidth="1" fill="none" opacity="0.6" />
                     <path d="M 15 6 Q 14 2 15 -2" stroke="#a5b4fc" strokeWidth="1" fill="none" opacity="0.6" />
                     
-                    {/* Multiple pens beside book */}
+                    {/* Pens */}
                     <rect x="65" y="28" width="12" height="2" rx="1" fill="#4c1d95" stroke="#a5b4fc" strokeWidth="0.4" />
                     <circle cx="66.5" cy="29" r="1" fill="#34d399" />
                     <rect x="72" y="28.3" width="4" height="1.4" rx="0.7" fill="#6b7280" />
@@ -115,16 +117,15 @@ export const Footer = () => {
                     <circle cx="73.5" cy="35.75" r="0.6" fill="#fca5a5" />
                   </g>
                   
-                  {/* CENTER-RIGHT AREA - Tech Elements - LIGHT BLUE/GREEN */}
+                  {/* CENTER-RIGHT AREA - Tech Elements */}
                   <g transform="translate(240, 5)">
-                    {/* Laptop */}
                     <rect x="0" y="12" width="35" height="20" rx="1.5" fill="#4c1d95" stroke="#a5b4fc" strokeWidth="0.8" />
                     <rect x="1" y="13" width="33" height="18" rx="1" fill="#312e81" />
                     <rect x="2" y="14" width="31" height="14" rx="0.3" fill="#a7f3d0" opacity="0.4" />
                     <rect x="5" y="32" width="26" height="3" rx="1.5" fill="#6b7280" />
                     <circle cx="18" cy="33.5" r="1.2" fill="#a5b4fc" />
                     
-                    {/* Code on laptop */}
+                    {/* Code lines */}
                     <rect x="3" y="15" width="10" height="1" fill="#34d399" opacity="0.8" />
                     <rect x="15" y="15" width="8" height="1" fill="#fde68a" opacity="0.8" />
                     <rect x="3" y="17" width="14" height="1" fill="#bfdbfe" opacity="0.8" />
@@ -156,9 +157,8 @@ export const Footer = () => {
                     <circle cx="70" cy="31" r="2.5" fill="#a5b4fc" opacity="0.7" />
                   </g>
                   
-                  {/* RIGHT AREA - More Tech Elements - LIGHT VARIANTS */}
+                  {/* RIGHT AREA - More Tech Elements */}
                   <g transform="translate(370, 5)">
-                    {/* Terminal */}
                     <rect x="0" y="5" width="25" height="18" rx="1.5" fill="#312e81" stroke="#34d399" strokeWidth="1" />
                     <circle cx="3" cy="8" r="0.8" fill="#fca5a5" />
                     <circle cx="6" cy="8" r="0.8" fill="#fde68a" />
@@ -169,7 +169,7 @@ export const Footer = () => {
                     <rect x="2" y="17" width="10" height="0.8" fill="#34d399" opacity="0.6" />
                     <rect x="2" y="19" width="5" height="0.8" fill="#34d399" opacity="0.8" />
                     
-                    {/* Database stack */}
+                    {/* Database */}
                     <ellipse cx="35" cy="15" rx="8" ry="3" fill="#4c1d95" stroke="#a5b4fc" strokeWidth="0.8" />
                     <rect x="27" y="15" width="16" height="12" fill="#4c1d95" />
                     <ellipse cx="35" cy="27" rx="8" ry="3" fill="#5b21b6" />
@@ -182,13 +182,13 @@ export const Footer = () => {
                     <ellipse cx="65" cy="27" rx="4" ry="2.5" fill="#bfdbfe" stroke="#e0e7ff" strokeWidth="0.8" />
                     <ellipse cx="60" cy="30" rx="7" ry="2.5" fill="#bfdbfe" stroke="#e0e7ff" strokeWidth="0.8" />
                     
-                    {/* RSS Symbol */}
+                    {/* RSS */}
                     <circle cx="15" cy="40" r="8" fill="#4c1d95" stroke="#a5b4fc" strokeWidth="0.8" />
                     <circle cx="12" cy="43" r="2" fill="#fb923c" />
                     <path d="M 7 37 Q 14 37 21 44" stroke="#fb923c" strokeWidth="2" fill="none" />
                     <path d="M 7 34 Q 17 34 27 44" stroke="#fb923c" strokeWidth="1.8" fill="none" opacity="0.8" />
                     
-                    {/* Lightbulb (idea) */}
+                    {/* Lightbulb */}
                     <circle cx="60" cy="55" r="5" fill="#fde68a" stroke="#e0e7ff" strokeWidth="1" />
                     <rect x="57" y="60" width="6" height="2.5" rx="1.25" fill="#a5b4fc" stroke="#e0e7ff" strokeWidth="0.8" />
                     
@@ -199,21 +199,19 @@ export const Footer = () => {
                     <path d="M 70 55 L 68 55" stroke="#fde68a" strokeWidth="1.5" />
                   </g>
                   
-                  {/* FAR RIGHT AREA - Additional Elements */}
-                  <g transform="translate(440, 5)">
-                    {/* Stacked books */}
+                  {/* FAR RIGHT - Books */}
+                  <g transform="translate(440, 5)" className="hidden sm:block">
                     <rect x="0" y="20" width="6" height="20" rx="1.5" fill="#bfdbfe" opacity="0.9" />
                     <rect x="8" y="18" width="6" height="22" rx="1.5" fill="#a5b4fc" opacity="0.8" />
                     <rect x="16" y="16" width="6" height="24" rx="1.5" fill="#bfdbfe" opacity="0.7" />
                     
-                    {/* Bookmarks */}
                     <rect x="1" y="12" width="4" height="10" rx="0.8" fill="#fca5a5" />
                     <polygon points="1,22 3,19 5,22 5,25 1,25" fill="#ef4444" />
                     <rect x="9" y="10" width="4" height="10" rx="0.8" fill="#a7f3d0" />
                     <polygon points="9,20 11,17 13,20 13,23 9,23" fill="#22c55e" />
                   </g>
                   
-                  {/* Floating particles throughout */}
+                  {/* Particles */}
                   <circle cx="60" cy="8" r="1.5" fill="#c4b5fd" opacity="0.8" />
                   <circle cx="120" cy="5" r="1.2" fill="#bfdbfe" opacity="0.7" />
                   <circle cx="180" cy="8" r="1.3" fill="#a7f3d0" opacity="0.6" />
@@ -226,7 +224,7 @@ export const Footer = () => {
                   <circle cx="270" cy="67" r="1.3" fill="#fde68a" opacity="0.6" />
                   <circle cx="330" cy="63" r="1.2" fill="#fca5a5" opacity="0.7" />
                   
-                  {/* Stars scattered */}
+                  {/* Stars */}
                   <g fill="#f0f9ff" stroke="#a5b4fc" strokeWidth="0.6">
                     <polygon points="45,5 45.5,7 47.5,7 46,8.5 46.5,10.5 45,9.5 43.5,10.5 44,8.5 42.5,7 44.5,7" opacity="0.7" />
                     <polygon points="140,3 140.5,4.5 142,4.5 141,5.5 141.5,7 140,6.5 138.5,7 139,5.5 138,4.5 139.5,4.5" opacity="0.8" />
@@ -237,37 +235,37 @@ export const Footer = () => {
                 </svg>
               </div>
               
-              {/* Social Icons positioned below the main illustration */}
-              <div className="flex gap-3 self-start">
+              {/* Social Icons - Responsive */}
+              <div className="flex gap-2 sm:gap-3 justify-center lg:justify-start w-full">
                 <a 
                   href="https://github.com/SAMARTH-MUKTAMATH"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-lg hover:bg-slate-900 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-slate-900 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
                 >
-                  <Github className="w-5 h-5" />
+                  <Github className="w-4 h-4 sm:w-5 sm:h-5" />
                 </a>
                 <a 
                   href="https://www.linkedin.com/in/samarthmuktamath"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2 rounded-lg hover:bg-slate-900 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-slate-900 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
                 >
-                  <Linkedin className="w-5 h-5" />
+                  <Linkedin className="w-4 h-4 sm:w-5 sm:h-5" />
                 </a>
                 <a 
                   href="mailto:samarthmise2025@gmail.com"
-                  className="p-2 rounded-lg hover:bg-slate-900 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-slate-900 hover:text-slate-100 transition-colors border border-primary/30 hover:border-slate-600 bg-primary/20"
                 >
-                  <Mail className="w-5 h-5" />
+                  <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Bottom Section - Copyright only */}
+          {/* Bottom Section - Copyright */}
           <div className="border-t border-border/20 pt-1">
-            <p className="text-muted-foreground text-xs mb-1">
+            <p className="text-muted-foreground text-xs sm:text-sm text-center lg:text-left">
               © 2025 Blogify. Made with <Heart className="w-3 h-3 text-red-500 inline mx-1" fill="currentColor" /> by Samarth
             </p>
           </div>
