@@ -41,11 +41,7 @@ const Index = () => {
 
   // Transform Supabase posts to UI format
   useEffect(() => {
-    console.log('🔀 TRANSFORMING SUPABASE POSTS:', supabasePosts.length);
-    
     const transformedPosts = supabasePosts.map(post => {
-      console.log('📝 Transforming post:', post.id, '-', post.title);
-      
       return {
         id: post.id,
         title: post.title,
@@ -63,24 +59,18 @@ const Index = () => {
       };
     });
     
-    console.log('✅ TRANSFORMED POSTS FOR UI:', transformedPosts.length);
-    console.log('📄 UI POSTS DATA:', transformedPosts);
-    
     setUiPosts(transformedPosts);
   }, [supabasePosts]);
 
   useEffect(() => {
-    console.log('🏠 TRACKING INITIAL PAGE VIEW');
     trackPageView('home');
   }, [trackPageView]);
 
   const handleLoaderComplete = () => {
-    console.log('⏰ LOADER COMPLETED');
     setShowLoader(false);
   };
 
   const handlePostClick = (postId: number) => {
-    console.log('👆 POST CLICKED:', postId);
     setSelectedPostId(postId);
     setCurrentPage('post');
     trackPageView('post');
@@ -88,7 +78,6 @@ const Index = () => {
   };
 
   const handleNavigation = (page: PageType) => {
-    console.log('🧭 NAVIGATING TO:', page);
     setCurrentPage(page);
     trackPageView(page);
     
@@ -98,16 +87,11 @@ const Index = () => {
   };
 
   const handleSavePost = async (newPost: Omit<BlogPostUI, 'id' | 'date' | 'readTime'>, imageFile?: File) => {
-    console.log('📝 SAVE POST HANDLER CALLED');
-    console.log('📄 POST DATA:', newPost);
-    
     try {
       let imageUrl = null;
       
       if (imageFile) {
-        console.log('📤 UPLOADING IMAGE...');
         imageUrl = await uploadImage(imageFile);
-        console.log('🖼️ IMAGE URL:', imageUrl);
       }
 
       const postData = {
@@ -120,30 +104,20 @@ const Index = () => {
         image_url: imageUrl
       };
 
-      console.log('💾 SAVING POST WITH DATA:', postData);
       await savePost(postData);
       
-      console.log('📊 TRACKING POST CREATED EVENT');
       trackEvent('post_created', {
         title: newPost.title,
         category: newPost.category,
         has_image: !!imageUrl
       });
       
-      console.log('🏠 REDIRECTING TO HOME');
       setCurrentPage('home');
     } catch (error) {
-      console.error('💥 SAVE POST ERROR:', error);
+      console.error('Save post error:', error);
       alert('Error saving post. Please try again.');
     }
   };
-
-  // Debug current state
-  console.log('🎯 CURRENT STATE:');
-  console.log('- Page:', currentPage);
-  console.log('- UI Posts count:', uiPosts.length);
-  console.log('- Supabase Posts count:', supabasePosts.length);
-  console.log('- Loading:', loading);
 
   if (showLoader) {
     return <AuroraLoader onComplete={handleLoaderComplete} />;
@@ -159,10 +133,7 @@ const Index = () => {
         </div>
       )}
       
-      {/* Debug info */}
-      <div className="fixed bottom-4 left-4 z-50 bg-black/80 text-white p-2 rounded text-xs">
-        Posts: {uiPosts.length} | Loading: {loading ? 'Yes' : 'No'}
-      </div>
+      {/* DEBUG DIV REMOVED - NO MORE COUNTER! */}
       
       {currentPage === 'home' && (
         <BlogHome posts={uiPosts} onPostClick={handlePostClick} />
@@ -187,3 +158,4 @@ const Index = () => {
 };
 
 export default Index;
+  
