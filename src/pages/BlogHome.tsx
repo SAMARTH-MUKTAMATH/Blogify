@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Sparkles, TrendingUp, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { Footer } from "@/components/Footer";
+import Newsletter from "@/components/Newsletter";
 
 interface BlogPost {
   id: number;
@@ -68,7 +69,6 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
               the Digital <br /> Sky
             </h1>
             
-            {/* SAME TEXT BUT BETTER MOBILE RESPONSIVE */}
             <motion.p
               className="text-sm sm:text-lg md:text-xl text-muted-foreground mb-6 sm:mb-8 md:mb-12 max-w-xs sm:max-w-2xl mx-auto px-3 sm:px-4 leading-relaxed"
               initial={{ opacity: 0 }}
@@ -79,14 +79,12 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
               like the northern lights across a starlit sky.
             </motion.p>
 
-            {/* SEARCH SECTION - SIDE BY SIDE ON ALL SCREENS */}
             <motion.div
               className="flex gap-2 sm:gap-4 justify-center items-center mb-8 sm:mb-12 px-2 sm:px-4 max-w-2xl mx-auto"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              {/* Search Bar - Flexible width */}
               <div className="relative flex-1 min-w-0">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-10" />
                 <Input
@@ -97,7 +95,6 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
                 />
               </div>
               
-              {/* Trending Button - Fixed width */}
               <Button 
                 className="flex-shrink-0 bg-primary hover:bg-primary/90 aurora-glow transition-all duration-300 py-2.5 px-3 sm:px-6 text-sm font-medium whitespace-nowrap"
                 size="default"
@@ -111,7 +108,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
         </div>
       </section>
 
-      {/* RESPONSIVE CATEGORIES SECTION */}
+      {/* CATEGORIES SECTION */}
       <section className="px-3 sm:px-6 mb-8 sm:mb-12">
         <div className="container mx-auto">
           <motion.div
@@ -120,7 +117,6 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.8 }}
           >
-            {/* Initial Categories */}
             {initialCategories.map((category) => (
               <motion.div
                 key={category}
@@ -146,7 +142,6 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
               </motion.div>
             ))}
             
-            {/* Expand/Collapse Button */}
             <motion.div
               whileHover={{
                 scale: 1.05,
@@ -166,7 +161,6 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
               </Button>
             </motion.div>
 
-            {/* Additional Categories */}
             <AnimatePresence>
               {showAllCategories && (
                 <motion.div
@@ -211,13 +205,26 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
         </div>
       </section>
 
+      {/* NEWSLETTER SIGNUP SECTION - Added before blog posts */}
+      <motion.section 
+        className="px-3 sm:px-6 mb-8 sm:mb-12"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 1.2 }}
+      >
+        <div className="container mx-auto max-w-4xl">
+          <Newsletter />
+        </div>
+      </motion.section>
+
+      {/* BLOG POSTS SECTION */}
       <section className="px-3 sm:px-6 pb-16">
         <div className="container mx-auto">
           <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1 }}
+            transition={{ duration: 0.8, delay: 1.4 }}
           >
             {filteredPosts.map((post, index) => (
               <BlogCard
@@ -245,8 +252,8 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
           )}
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };
-
-<Footer />

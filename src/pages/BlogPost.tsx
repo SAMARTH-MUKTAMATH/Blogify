@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Clock, User, Heart, Share2, Bookmark } from "lucide-react";
 import { useState, useEffect } from "react";
+import Newsletter from "@/components/Newsletter";
 
 interface BlogPost {
   id: number;
@@ -166,12 +167,22 @@ export const BlogPost = ({ postId, posts, onBack }: BlogPostProps) => {
           )}
 
           <motion.div
-            className="prose prose-lg dark:prose-invert max-w-none"
+            className="prose prose-lg dark:prose-invert max-w-none mb-16"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
+
+          {/* Newsletter signup at the end of each post */}
+          <motion.div
+            className="border-t border-border/50 pt-12"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+          >
+            <Newsletter />
+          </motion.div>
         </div>
       </article>
     </div>

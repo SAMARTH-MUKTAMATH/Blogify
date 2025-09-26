@@ -17,9 +17,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Footer } from "@/components/Footer";
-
-
+// 🔥 NEW: Import newsletter function
+import { sendNewPostNotification } from '../utils/emailService';
 
 interface BlogPost {
   id: number;
@@ -35,7 +34,8 @@ interface BlogPost {
 
 interface AdminPanelProps {
   onPreview: () => void;
-  onSavePost: (post: Omit<BlogPost, 'id' | 'date' | 'readTime'>, imageFile?: File) => void;
+  // 🔥 UPDATED: Return Promise<BlogPost> for newsletter integration
+  onSavePost: (post: Omit<BlogPost, 'id' | 'date' | 'readTime'>, imageFile?: File) => Promise<BlogPost>;
   editingPost?: BlogPost | null;
 }
 
@@ -234,7 +234,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
     }
   };
 
-  // Actually save the post after confirmation
+  // 🔥 UPDATED: Add newsletter notification after successful save
   const handleConfirmedSave = async () => {
     setShowConfirmDialog(false);
     
@@ -247,7 +247,24 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
         category: formData.category || "Uncategorized"
       };
 
-      await onSavePost(newPost, selectedImage || undefined);
+      // Save the post first
+      const savedPost = await onSavePost(newPost, selectedImage || undefined);
+      
+      // 🔥 NEW: Send newsletter notifications after successful save
+      if (!editingPost) { // Only for new posts, not edits
+        try {
+          await sendNewPostNotification({
+            id: savedPost?.id || Date.now(),
+            title: newPost.title,
+            excerpt: newPost.excerpt || newPost.content.substring(0, 150) + '...',
+          });
+          
+          console.log('📧 Newsletter notifications sent to all subscribers!');
+        } catch (emailError) {
+          console.error('📧 Newsletter notification failed:', emailError);
+          // Don't fail the entire save if email fails
+        }
+      }
 
       if (!editingPost) {
         setFormData({
@@ -264,9 +281,12 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
       setImageUploadStatus('idle');
       setUploadError('');
 
+      // 🔥 UPDATED: Show newsletter notification in toast
       toast({
-        title: editingPost ? "Post Updated! ✨" : "Post Published! ✨",
-        description: editingPost ? "Your blog post has been updated successfully." : "Your blog post has been published successfully.",
+        title: editingPost ? "Post Updated! ✨" : "Post Published & Notifications Sent! 📧",
+        description: editingPost ? 
+          "Your blog post has been updated successfully." : 
+          "Your blog post has been published and all subscribers have been notified!",
       });
 
     } catch (error) {
@@ -338,7 +358,6 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
             </h1>
             <p className="text-base sm:text-xl text-muted-foreground px-4">
               <span className=" font-semibold">Transform your ideas</span> into captivating blog posts
-
             </p>
           </div>
 
@@ -568,19 +587,12 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
             </Card>
           </div>
 
-          {/* Info Card */}
-          {/* <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-primary/5 border border-primary/20 rounded-lg slide-up delay-8">
-            <h3 className="font-semibold mb-2 text-primary text-sm sm:text-base">Live Publishing</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+          {/* Minimal margin top */}
+          <div className="mt-3 text-center slide-up delay-8">
+            <p className="text-xs sm:text-sm text-muted-foreground form-text">
               Your posts will appear instantly on the home page after publishing.
             </p>
-          </div> */}
-          {/* Minimal margin top */}
-<div className="mt-3 text-center slide-up delay-8">
-  <p className="text-xs sm:text-sm text-muted-foreground form-text">
-    Your posts will appear instantly on the home page after publishing.
-  </p>
-</div>
+          </div>
 
         </div>
       </div>
@@ -659,4 +671,3 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
     </>
   );
 };
-<Footer />

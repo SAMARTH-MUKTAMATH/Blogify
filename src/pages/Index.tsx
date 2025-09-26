@@ -86,7 +86,8 @@ const Index = () => {
     }
   };
 
-  const handleSavePost = async (newPost: Omit<BlogPostUI, 'id' | 'date' | 'readTime'>, imageFile?: File) => {
+  // 🔥 UPDATED: Return Promise<BlogPostUI> for newsletter integration
+  const handleSavePost = async (newPost: Omit<BlogPostUI, 'id' | 'date' | 'readTime'>, imageFile?: File): Promise<BlogPostUI> => {
     try {
       let imageUrl = null;
       
@@ -104,7 +105,25 @@ const Index = () => {
         image_url: imageUrl
       };
 
-      await savePost(postData);
+      // 🔥 UPDATED: Get the saved post from Supabase
+      const savedSupabasePost = await savePost(postData);
+      
+      // 🔥 NEW: Create the UI format post to return
+      const savedUIPost: BlogPostUI = {
+        id: savedSupabasePost.id,
+        title: savedSupabasePost.title,
+        excerpt: savedSupabasePost.excerpt || '',
+        content: savedSupabasePost.content,
+        category: savedSupabasePost.category,
+        author: savedSupabasePost.author,
+        date: new Date(savedSupabasePost.created_at).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }),
+        readTime: savedSupabasePost.read_time || calculateReadTime(savedSupabasePost.content),
+        image: savedSupabasePost.image_url || null
+      };
       
       trackEvent('post_created', {
         title: newPost.title,
@@ -113,9 +132,14 @@ const Index = () => {
       });
       
       setCurrentPage('home');
+      
+      // 🔥 NEW: Return the saved post for newsletter integration
+      return savedUIPost;
+      
     } catch (error) {
       console.error('Save post error:', error);
       alert('Error saving post. Please try again.');
+      throw error; // Re-throw to handle in AdminPanel
     }
   };
 
@@ -158,4 +182,3 @@ const Index = () => {
 };
 
 export default Index;
-  
