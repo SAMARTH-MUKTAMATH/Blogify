@@ -136,8 +136,10 @@ All colors MUST be HSL for consistency and theme support.
   }
 
   body {
-    @apply bg-background text-foreground font-medium;
+    @apply bg-background text-foreground font-medium overflow-x-hidden;
     scroll-behavior: smooth;
+    overscroll-behavior-x: none;
+    scrollbar-gutter: stable both-edges;
   }
 
   /* Aurora keyframes and animations */

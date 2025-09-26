@@ -3,6 +3,12 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  overflow-x: hidden; /* Fix horizontal scroll */
+}
+
+/* Add these global fixes */
+html, body {
+  overflow-x: hidden; /* Prevent horizontal scroll globally */
 }
 
 .logo {
