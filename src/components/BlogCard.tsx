@@ -56,7 +56,7 @@ export const BlogCard = ({ post, index, onClick }: BlogCardProps) => {
           )}
           
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-          <Badge className="absolute top-2 sm:top-4 left-2 sm:left-4 bg-primary/90 text-white text-xs">
+          <Badge className="absolute top-2 sm:top-4 left-2 sm:left-4 bg-primary/90 text-black font-semibold text-xs">
             {post.category}
           </Badge>
         </div>
