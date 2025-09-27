@@ -3,10 +3,10 @@ import { BlogCard } from "@/components/BlogCard";
 import { FloatingElements } from "@/components/FloatingElements";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Sparkles, TrendingUp, MoreHorizontal } from "lucide-react";
+import { Search, Sparkles, TrendingUp, MoreHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { Footer } from "@/components/Footer";
-import Newsletter from "@/components/Newsletter";
+import  Newsletter  from "@/components/Newsletter";
 
 interface BlogPost {
   id: number;
@@ -29,6 +29,8 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [showAllCategories, setShowAllCategories] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 9;
 
   const initialCategories = ["All", "Technology", "Design", "UX Design", "Development", "Writing", "Creative"];
   const additionalCategories = ["AI", "Tools", "Photography", "Entertainment", "Finance", "Lifestyle", "Food", "Travel", "Health", "Crypto", "Database", "Cloud", "DevOps", "Security", "Mobile", "API"];
@@ -40,10 +42,33 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
     return matchesSearch && matchesCategory;
   });
 
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+  const startIndex = (currentPage - 1) * postsPerPage;
+  const endIndex = startIndex + postsPerPage;
+  const currentPosts = filteredPosts.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-background relative">
       <FloatingElements />
       
+      {/* HERO SECTION */}
       <section className="relative pt-24 pb-16 px-3 sm:px-6">
         <div className="container mx-auto text-center">
           <motion.div
@@ -90,7 +115,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
                 <Input
                   placeholder="Search for inspiration..."
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="w-full pl-10 pr-3 py-2.5 bg-card/50 border-border/50 backdrop-blur-sm text-sm"
                 />
               </div>
@@ -130,7 +155,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
                 <Button
                   variant={selectedCategory === category ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => handleCategoryChange(category)}
                   className={`text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 transition-all duration-300 whitespace-nowrap ${
                     selectedCategory === category 
                       ? "aurora-glow bg-primary" 
@@ -187,7 +212,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
                       <Button
                         variant={selectedCategory === category ? "default" : "outline"}
                         size="sm"
-                        onClick={() => setSelectedCategory(category)}
+                        onClick={() => handleCategoryChange(category)}
                         className={`text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2 transition-all duration-300 whitespace-nowrap ${
                           selectedCategory === category 
                             ? "aurora-glow bg-primary" 
@@ -205,7 +230,7 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
         </div>
       </section>
 
-      {/* NEWSLETTER SIGNUP SECTION - Added before blog posts */}
+      {/* NEWSLETTER SIGNUP SECTION */}
       <motion.section 
         className="px-3 sm:px-6 mb-8 sm:mb-12"
         initial={{ opacity: 0, y: 30 }}
@@ -220,21 +245,212 @@ export const BlogHome = ({ onPostClick, posts }: BlogHomeProps) => {
       {/* BLOG POSTS SECTION */}
       <section className="px-3 sm:px-6 pb-16">
         <div className="container mx-auto">
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 1.4 }}
-          >
-            {filteredPosts.map((post, index) => (
-              <BlogCard
-                key={post.id}
-                post={post}
-                index={index}
-                onClick={() => onPostClick(post.id)}
-              />
-            ))}
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentPage}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
+              transition={{ duration: 0.5 }}
+            >
+              {currentPosts.map((post, index) => (
+                <BlogCard
+                  key={post.id}
+                  post={post}
+                  index={index}
+                  onClick={() => onPostClick(post.id)}
+                />
+              ))}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* SMART PAGINATION CONTROLS WITH DOTS */}
+          {totalPages > 1 && (
+            <motion.div
+              className="flex items-center justify-center gap-1 mt-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.4 }}
+            >
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="bg-card/50 backdrop-blur-sm border-border/50 hover:bg-primary/20 px-3"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+
+              <div className="flex items-center gap-1">
+                {(() => {
+                  const pages = [];
+                  const showPages = 5; // Maximum pages to show
+                  
+                  if (totalPages <= showPages) {
+                    // Show all pages if total is small
+                    for (let i = 1; i <= totalPages; i++) {
+                      pages.push(
+                        <Button
+                          key={i}
+                          variant={currentPage === i ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(i)}
+                          className={`min-w-[40px] h-10 p-0 ${
+                            currentPage === i
+                              ? "aurora-glow bg-primary"
+                              : "bg-card/50 backdrop-blur-sm border-border/50 hover:bg-primary/20"
+                          }`}
+                        >
+                          {i}
+                        </Button>
+                      );
+                    }
+                  } else {
+                    // Smart pagination with dots
+                    if (currentPage <= 3) {
+                      // Show: 1 2 3 4 ... last
+                      for (let i = 1; i <= 4; i++) {
+                        pages.push(
+                          <Button
+                            key={i}
+                            variant={currentPage === i ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(i)}
+                            className={`min-w-[40px] h-10 p-0 ${
+                              currentPage === i
+                                ? "aurora-glow bg-primary"
+                                : "bg-card/50 backdrop-blur-sm border-border/50 hover:bg-primary/20"
+                            }`}
+                          >
+                            {i}
+                          </Button>
+                        );
+                      }
+                      
+                      if (totalPages > 5) {
+                        pages.push(
+                          <span key="dots1" className="px-2 text-muted-foreground">...</span>
+                        );
+                        pages.push(
+                          <Button
+                            key={totalPages}
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handlePageChange(totalPages)}
+                            className="min-w-[40px] h-10 p-0 bg-card/50 backdrop-blur-sm border-border/50 hover:bg-primary/20"
+                          >
+                            {totalPages}
+                          </Button>
+                        );
+                      }
+                    } else if (currentPage >= totalPages - 2) {
+                      // Show: 1 ... last-3 last-2 last-1 last
+                      pages.push(
+                        <Button
+                          key={1}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(1)}
+                          className="min-w-[40px] h-10 p-0 bg-card/50 backdrop-blur-sm border-border/50 hover:bg-primary/20"
+                        >
+                          1
+                        </Button>
+                      );
+                      
+                      if (totalPages > 5) {
+                        pages.push(
+                          <span key="dots2" className="px-2 text-muted-foreground">...</span>
+                        );
+                      }
+                      
+                      for (let i = totalPages - 3; i <= totalPages; i++) {
+                        pages.push(
+                          <Button
+                            key={i}
+                            variant={currentPage === i ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(i)}
+                            className={`min-w-[40px] h-10 p-0 ${
+                              currentPage === i
+                                ? "aurora-glow bg-primary"
+                                : "bg-card/50 backdrop-blur-sm border-border/50 hover:bg-primary/20"
+                            }`}
+                          >
+                            {i}
+                          </Button>
+                        );
+                      }
+                    } else {
+                      // Show: 1 ... current-1 current current+1 ... last
+                      pages.push(
+                        <Button
+                          key={1}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(1)}
+                          className="min-w-[40px] h-10 p-0 bg-card/50 backdrop-blur-sm border-border/50 hover:bg-primary/20"
+                        >
+                          1
+                        </Button>
+                      );
+                      
+                      pages.push(
+                        <span key="dots3" className="px-2 text-muted-foreground">...</span>
+                      );
+                      
+                      for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                        pages.push(
+                          <Button
+                            key={i}
+                            variant={currentPage === i ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => handlePageChange(i)}
+                            className={`min-w-[40px] h-10 p-0 ${
+                              currentPage === i
+                                ? "aurora-glow bg-primary"
+                                : "bg-card/50 backdrop-blur-sm border-border/50 hover:bg-primary/20"
+                            }`}
+                          >
+                            {i}
+                          </Button>
+                        );
+                      }
+                      
+                      pages.push(
+                        <span key="dots4" className="px-2 text-muted-foreground">...</span>
+                      );
+                      
+                      pages.push(
+                        <Button
+                          key={totalPages}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handlePageChange(totalPages)}
+                          className="min-w-[40px] h-10 p-0 bg-card/50 backdrop-blur-sm border-border/50 hover:bg-primary/20"
+                        >
+                          {totalPages}
+                        </Button>
+                      );
+                    }
+                  }
+                  
+                  return pages;
+                })()}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="bg-card/50 backdrop-blur-sm border-border/50 hover:bg-primary/20 px-3"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </motion.div>
+          )}
 
           {filteredPosts.length === 0 && (
             <motion.div

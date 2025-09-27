@@ -1,6 +1,55 @@
-import { Github, Linkedin, Mail, Heart } from "lucide-react";
+import { Github, Linkedin, Mail, Heart, Bell } from "lucide-react";
+import { useState, useEffect } from "react";
 
 export const Footer = () => {
+  const [currentMessage, setCurrentMessage] = useState(0);
+  
+  const messages = [
+    "Subscribe",
+    "Stay Updated", 
+    "Newsletter",
+    "Get Notified",
+    "Join Us"
+  ];
+
+  // Auto-cycle through messages
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessage((prev) => (prev + 1) % messages.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const scrollToNewsletter = () => {
+    // Try to find the email input specifically
+    const emailInput = document.querySelector('input[type="email"]');
+    const newsletterForm = document.querySelector('form');
+    const newsletterSection = document.getElementById('newsletter-section');
+    
+    if (emailInput) {
+      // Scroll to email input with some offset
+      emailInput.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center'
+      });
+    } else if (newsletterForm) {
+      // Fallback to form
+      newsletterForm.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'center'
+      });
+    } else if (newsletterSection) {
+      // Fallback to section but scroll lower
+      newsletterSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end'
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="bg-primary/10 border-t border-border/50 backdrop-blur-sm mt-8">
       <div className="container mx-auto px-3 sm:px-4 md:px-6 py-2">
@@ -11,15 +60,15 @@ export const Footer = () => {
             
             {/* Left Side - Content */}
             <div className="flex-1">
-              <h3 className="text-base sm:text-lg font-bold mb-2">
+              <h3 className="text-base sm:text-lg font-bold mb-2 text-foreground">
                 Blog<span className="text-primary">ify</span>
               </h3>
               
-              <div className="text-muted-foreground text-xs sm:text-sm mb-1">
+              <div className="text-foreground/80 text-xs sm:text-sm mb-1">
                 <div className="mb-1">
                   Illuminating the digital sky with captivating stories, insights, and ideas that inspire.
                 </div>
-                <div className="text-muted-foreground/50">
+                <div className="text-foreground/60">
                   Where creativity meets technology, and every word builds bridges between minds.
                 </div>
               </div>
@@ -235,8 +284,9 @@ export const Footer = () => {
                 </svg>
               </div>
               
-              {/* Social Icons - Responsive */}
-              <div className="flex gap-2 sm:gap-3 justify-center lg:justify-start w-full">
+              {/* Social Icons and Newsletter - Single Row */}
+              <div className="flex items-center gap-2 sm:gap-3 justify-center lg:justify-start w-full">
+                {/* Social Icons */}
                 <a 
                   href="https://github.com/SAMARTH-MUKTAMATH"
                   target="_blank"
@@ -259,13 +309,27 @@ export const Footer = () => {
                 >
                   <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
                 </a>
+
+                {/* Newsletter Button - No scaling, bright colors */}
+                <button
+                  onClick={scrollToNewsletter}
+                  className="flex items-center gap-1.5 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg bg-primary/40 hover:bg-primary/60 border border-primary/60 hover:border-primary/80 transition-colors duration-300"
+                >
+                  <Bell className="w-3 h-3 sm:w-4 sm:h-4 text-foreground animate-bounce" />
+                  <span 
+                    key={currentMessage} 
+                    className="text-xs sm:text-sm font-medium text-foreground animate-pulse"
+                  >
+                    {messages[currentMessage]}
+                  </span>
+                </button>
               </div>
             </div>
           </div>
 
           {/* Bottom Section - Copyright */}
           <div className="border-t border-border/20 pt-1">
-            <p className="text-muted-foreground text-xs sm:text-sm text-center lg:text-left">
+            <p className="text-foreground/70 text-xs sm:text-sm text-center lg:text-left">
               © 2025 Blogify. Made with <Heart className="w-3 h-3 text-red-500 inline mx-1" fill="currentColor" /> by Samarth
             </p>
           </div>

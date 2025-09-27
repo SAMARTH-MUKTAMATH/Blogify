@@ -7,18 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Save, Eye, Upload, Sparkles, X, AlertCircle, AlertTriangle, User, Calendar, Tag, Clock } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-// 🔥 NEW: Import newsletter function
-import { sendNewPostNotification } from '../utils/emailService';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+
+// NEW Import newsletter function
+import { sendNewPostNotification } from "../utils/emailService";
 
 interface BlogPost {
   id: number;
@@ -34,21 +26,13 @@ interface BlogPost {
 
 interface AdminPanelProps {
   onPreview: () => void;
-  // 🔥 UPDATED: Return Promise<BlogPost> for newsletter integration
-  onSavePost: (post: Omit<BlogPost, 'id' | 'date' | 'readTime'>, imageFile?: File) => Promise<BlogPost>;
+  // UPDATED: Return Promise<BlogPost> for newsletter integration
+  onSavePost: (post: Omit<BlogPost, "id" | "date" | "readTime">, imageFile?: File) => Promise<BlogPost>;
   editingPost?: BlogPost | null;
 }
 
 // Auto-Growing Textarea Component
-const AutoGrowTextarea = ({ 
-  value, 
-  onChange, 
-  placeholder, 
-  className,
-  id,
-  minRows = 5,
-  maxRows = 25
-}: {
+const AutoGrowTextarea = ({ value, onChange, placeholder, className, id, minRows = 5, maxRows = 25 }: {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder: string;
@@ -58,16 +42,18 @@ const AutoGrowTextarea = ({
   maxRows?: number;
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
+  
   const adjustHeight = () => {
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = 'auto';
+      
       const lineHeight = 24;
       const minHeight = minRows * lineHeight;
       const maxHeight = maxRows * lineHeight;
+      
       const newHeight = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight);
-      textarea.style.height = newHeight + 'px';
+      textarea.style.height = `${newHeight}px`;
       
       if (textarea.scrollHeight > maxHeight) {
         textarea.style.overflowY = 'auto';
@@ -76,16 +62,16 @@ const AutoGrowTextarea = ({
       }
     }
   };
-
+  
   useEffect(() => {
     adjustHeight();
   }, [value]);
-
+  
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e);
     setTimeout(adjustHeight, 0);
   };
-
+  
   return (
     <Textarea
       ref={textareaRef}
@@ -95,7 +81,7 @@ const AutoGrowTextarea = ({
       placeholder={placeholder}
       className={className}
       rows={minRows}
-      style={{ 
+      style={{
         resize: 'none',
         minHeight: `${minRows * 24}px`,
         maxHeight: `${maxRows * 24}px`,
@@ -112,20 +98,21 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
     excerpt: "",
     content: "",
     category: "",
-    author: "Your Name",
+    author: "Your Name"
   });
+  
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [imageUploadStatus, setImageUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
-  const [uploadError, setUploadError] = useState<string>('');
+  const [imageUploadStatus, setImageUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
+  const [uploadError, setUploadError] = useState<string>("");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const { toast } = useToast();
 
   // Populate form when editing
   useEffect(() => {
     if (editingPost) {
-      console.log('📝 POPULATING FORM FOR EDITING:', editingPost.id);
+      console.log("POPULATING FORM FOR EDITING:", editingPost.id);
       setFormData({
         title: editingPost.title,
         excerpt: editingPost.excerpt,
@@ -133,10 +120,9 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
         category: editingPost.category,
         author: editingPost.author,
       });
-      
       if (editingPost.image) {
         setImagePreview(editingPost.image);
-        setImageUploadStatus('success');
+        setImageUploadStatus("success");
       }
     } else {
       setFormData({
@@ -144,11 +130,11 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
         excerpt: "",
         content: "",
         category: "",
-        author: "Your Name",
+        author: "Your Name"
       });
       setImagePreview(null);
       setSelectedImage(null);
-      setImageUploadStatus('idle');
+      setImageUploadStatus("idle");
     }
   }, [editingPost]);
 
@@ -158,14 +144,14 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
 
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    setImageUploadStatus('idle');
-    setUploadError('');
-    
+    setImageUploadStatus("idle");
+    setUploadError("");
+
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
         const errorMsg = "File too large. Please select an image smaller than 10MB.";
         setUploadError(errorMsg);
-        setImageUploadStatus('error');
+        setImageUploadStatus("error");
         toast({
           title: "File too large",
           description: errorMsg,
@@ -174,10 +160,10 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
         return;
       }
 
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         const errorMsg = "Invalid file type. Please select an image file (PNG, JPG, GIF).";
         setUploadError(errorMsg);
-        setImageUploadStatus('error');
+        setImageUploadStatus("error");
         toast({
           title: "Invalid file type",
           description: errorMsg,
@@ -187,8 +173,8 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
       }
 
       setSelectedImage(file);
-      setImageUploadStatus('success');
-      
+      setImageUploadStatus("success");
+
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
@@ -196,7 +182,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
       reader.readAsDataURL(file);
 
       toast({
-        title: "Image selected! ✨",
+        title: "Image selected!",
         description: `Selected: ${file.name}`,
       });
     }
@@ -205,12 +191,12 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
   const removeImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
-    setImageUploadStatus('idle');
-    setUploadError('');
+    setImageUploadStatus("idle");
+    setUploadError("");
     
-    const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+    const fileInput = document.getElementById("image-upload") as HTMLInputElement;
     if (fileInput) {
-      fileInput.value = '';
+      fileInput.value = "";
     }
   };
 
@@ -234,34 +220,32 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
     }
   };
 
-  // 🔥 UPDATED: Add newsletter notification after successful save
+  // UPDATED: Add newsletter notification after successful save
   const handleConfirmedSave = async () => {
     setShowConfirmDialog(false);
     
     try {
-      setImageUploadStatus('uploading');
-
+      setImageUploadStatus("uploading");
       const newPost = {
         ...formData,
         image: imagePreview,
-        category: formData.category || "Uncategorized"
+        category: formData.category || "Uncategorized",
       };
 
       // Save the post first
       const savedPost = await onSavePost(newPost, selectedImage || undefined);
-      
-      // 🔥 NEW: Send newsletter notifications after successful save
+
+      // NEW: Send newsletter notifications after successful save
       if (!editingPost) { // Only for new posts, not edits
         try {
           await sendNewPostNotification({
             id: savedPost?.id || Date.now(),
             title: newPost.title,
-            excerpt: newPost.excerpt || newPost.content.substring(0, 150) + '...',
+            excerpt: newPost.excerpt || newPost.content.substring(0, 150) + "...",
           });
-          
-          console.log('📧 Newsletter notifications sent to all subscribers!');
+          console.log("Newsletter notifications sent to all subscribers!");
         } catch (emailError) {
-          console.error('📧 Newsletter notification failed:', emailError);
+          console.error("Newsletter notification failed:", emailError);
           // Don't fail the entire save if email fails
         }
       }
@@ -272,28 +256,26 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
           excerpt: "",
           content: "",
           category: "",
-          author: "Your Name",
+          author: "Your Name"
         });
         setSelectedImage(null);
         setImagePreview(null);
+        setImageUploadStatus("idle");
+        setUploadError("");
       }
-      
-      setImageUploadStatus('idle');
-      setUploadError('');
 
-      // 🔥 UPDATED: Show newsletter notification in toast
+      // UPDATED: Show newsletter notification in toast
       toast({
-        title: editingPost ? "Post Updated! ✨" : "Post Published & Notifications Sent! 📧",
-        description: editingPost ? 
-          "Your blog post has been updated successfully." : 
-          "Your blog post has been published and all subscribers have been notified!",
+        title: editingPost ? "Post Updated!" : "Post Published & Notifications Sent!",
+        description: editingPost 
+          ? "Your blog post has been updated successfully." 
+          : "Your blog post has been published and all subscribers have been notified!",
       });
 
     } catch (error) {
-      console.error('💥 SAVE ERROR:', error);
-      setImageUploadStatus('error');
-      setUploadError(error instanceof Error ? error.message : 'Unknown error');
-      
+      console.error("SAVE ERROR:", error);
+      setImageUploadStatus("error");
+      setUploadError(error instanceof Error ? error.message : "Unknown error");
       toast({
         title: "Save Failed",
         description: "There was an error saving your post. Please try again.",
@@ -302,35 +284,22 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
     }
   };
 
-  const categories = ["Technology", "Design", "UX Design", "Development", "Writing", "Creative"];
+  // UPDATED: Include all categories from both home screen lists
+  const categories = [
+    "Technology", "Design", "UX Design", "Development", "Writing", "Creative", 
+    "AI", "Tools", "Photography", "Entertainment", "Finance", "Lifestyle", 
+    "Food", "Travel", "Health", "Crypto", "Database", "Cloud", "DevOps", 
+    "Security", "Mobile", "API"
+  ];
 
   return (
     <>
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
-          
-          .form-text {
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-          }
-
-          .slide-up {
-            animation: slideUp 0.6s ease-out forwards;
-            opacity: 0;
-          }
-
-          @keyframes slideUp {
-            from {
-              opacity: 0;
-              transform: translateY(30px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-
+          .form-text { font-family: 'Outfit', sans-serif; font-weight: 600; }
+          .slide-up { animation: slideUp 0.6s ease-out forwards; opacity: 0; }
+          @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
           .delay-1 { animation-delay: 0.1s; }
           .delay-2 { animation-delay: 0.2s; }
           .delay-3 { animation-delay: 0.3s; }
@@ -341,23 +310,19 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
           .delay-8 { animation-delay: 0.8s; }
         `}
       </style>
-      
       <div className="min-h-screen bg-background pt-16 sm:pt-20 md:pt-24 pb-8 px-3 sm:px-4 md:px-6">
         <div className="container mx-auto max-w-5xl">
-          
           {/* Header */}
           <div className="text-center mb-8 sm:mb-12 slide-up delay-1">
             <div className="inline-flex items-center gap-2 px-3 py-2 sm:px-4 rounded-full bg-primary/70 text-black mb-4">
               <Sparkles className="w-4 h-4" />
               <span className="text-xs sm:text-sm font-medium">Content Creation Studio</span>
             </div>
-
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4 px-2">
-              Craft Your{" "}
-              <span className="aurora-text">Story</span>
+              Craft Your <span className="aurora-text">Story</span>
             </h1>
             <p className="text-base sm:text-xl text-muted-foreground px-4">
-              <span className=" font-semibold">Transform your ideas</span> into captivating blog posts
+              <span className="font-semibold">Transform your ideas</span> into captivating blog posts
             </p>
           </div>
 
@@ -366,13 +331,10 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
             <Card className="aurora-shadow bg-primary/20 backdrop-blur-sm border-border/50">
               <CardHeader className="px-4 sm:px-6">
                 <CardTitle className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 form-text">
-                  <span className="text-lg sm:text-xl">
-                    {editingPost ? 'Edit Post' : 'Write New Post'}
-                  </span>
-                  
+                  <span className="text-lg sm:text-xl">{editingPost ? "Edit Post" : "Write New Post"}</span>
                   <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <Button
-                      variant="outline"
+                    <Button 
+                      variant="outline" 
                       size="sm"
                       onClick={() => setIsPreviewMode(!isPreviewMode)}
                       className="bg-lime-400/20 hover:bg-primary/70 hover:text-black transition-colors duration-200 form-text text-xs sm:text-sm"
@@ -380,14 +342,14 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                       <Eye className="w-4 h-4 mr-2" />
                       {isPreviewMode ? "Edit" : "Preview"}
                     </Button>
-                    <Button
+                    <Button 
                       size="sm"
                       onClick={handleSaveClick}
-                      disabled={imageUploadStatus === 'uploading'}
+                      disabled={imageUploadStatus === "uploading"}
                       className="bg-primary/30 aurora-glow hover:bg-primary/70 hover:text-black transition-colors duration-200 form-text text-xs sm:text-sm"
                     >
                       <Save className="w-4 h-4 mr-2" />
-                      {imageUploadStatus === 'uploading' ? 'Publishing...' : editingPost ? 'Update Post' : 'Publish Post'}
+                      {imageUploadStatus === "uploading" ? "Publishing..." : editingPost ? "Update Post" : "Publish Post"}
                     </Button>
                   </div>
                 </CardTitle>
@@ -430,9 +392,19 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                           <SelectTrigger className="bg-background/50 form-text text-sm">
                             <SelectValue placeholder="Select a category" />
                           </SelectTrigger>
-                          <SelectContent className="form-text">
+                          <SelectContent 
+                            className="form-text max-h-48 overflow-y-scroll"
+                            position="popper"
+                            side="bottom"
+                            align="start"
+                            sideOffset={4}
+                          >
                             {categories.map((category) => (
-                              <SelectItem key={category} value={category} className="form-text text-sm">
+                              <SelectItem 
+                                key={category} 
+                                value={category} 
+                                className="form-text text-sm cursor-pointer"
+                              >
                                 {category}
                               </SelectItem>
                             ))}
@@ -472,28 +444,22 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                     {/* Image Upload */}
                     <div className="space-y-2 slide-up delay-7">
                       <Label className="form-text text-sm">Featured Image</Label>
-                      
-                      {imageUploadStatus !== 'idle' && (
+                      {imageUploadStatus !== "idle" && (
                         <div className={`flex items-center gap-2 p-2 rounded text-xs sm:text-sm ${
-                          imageUploadStatus === 'success' ? 'bg-green-100 text-green-800' :
-                          imageUploadStatus === 'uploading' ? 'bg-blue-100 text-blue-800' :
-                          'bg-red-100 text-red-800'
+                          imageUploadStatus === "success" ? "bg-green-100 text-green-800" :
+                          imageUploadStatus === "uploading" ? "bg-blue-100 text-blue-800" :
+                          "bg-red-100 text-red-800"
                         }`}>
-                          {imageUploadStatus === 'success' && '✅ Image ready'}
-                          {imageUploadStatus === 'uploading' && '⏳ Uploading...'}
-                          {imageUploadStatus === 'error' && (
-                            <><AlertCircle className="w-4 h-4" /> {uploadError}</>
-                          )}
+                          {imageUploadStatus === "success" ? "✓ Image ready" :
+                           imageUploadStatus === "uploading" ? "⏳ Uploading..." :
+                           imageUploadStatus === "error" && <><AlertCircle className="w-4 h-4" /> {uploadError}</>
+                          }
                         </div>
                       )}
                       
-                      {imagePreview && (
+                      {imagePreview ? (
                         <div className="relative slide-up">
-                          <img 
-                            src={imagePreview} 
-                            alt="Preview" 
-                            className="w-full max-w-sm h-32 sm:h-48 object-cover rounded-lg border mx-auto"
-                          />
+                          <img src={imagePreview} alt="Preview" className="w-full max-w-sm h-32 sm:h-48 object-cover rounded-lg border mx-auto" />
                           <Button
                             variant="destructive"
                             size="sm"
@@ -503,31 +469,31 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                             <X className="w-4 h-4" />
                           </Button>
                         </div>
-                      )}
-
-                      <div className="border-2 border-dashed border-border/50 rounded-lg p-4 sm:p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-background/30">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageSelect}
-                          className="hidden"
-                          id="image-upload"
-                        />
-                        <label htmlFor="image-upload" className="cursor-pointer">
-                          <Upload className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-muted-foreground" />
-                          <p className="text-xs sm:text-sm text-muted-foreground form-text">
-                            {selectedImage ? 'Tap to change image' : 'Tap to upload image'}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1 form-text">
-                            PNG, JPG, GIF up to 10MB
-                          </p>
-                          {selectedImage && (
-                            <p className="text-xs text-lime-400 mt-1 form-text">
-                              Selected: {selectedImage.name}
+                      ) : (
+                        <div className="border-2 border-dashed border-border/50 rounded-lg p-4 sm:p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-background/30">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageSelect}
+                            className="hidden"
+                            id="image-upload"
+                          />
+                          <label htmlFor="image-upload" className="cursor-pointer">
+                            <Upload className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 text-muted-foreground" />
+                            <p className="text-xs sm:text-sm text-muted-foreground form-text">
+                              {selectedImage ? "Tap to change image" : "Tap to upload image"}
                             </p>
-                          )}
-                        </label>
-                      </div>
+                            <p className="text-xs text-muted-foreground mt-1 form-text">
+                              PNG, JPG, GIF up to 10MB
+                            </p>
+                            {selectedImage && (
+                              <p className="text-xs text-lime-400 mt-1 form-text">
+                                Selected: {selectedImage.name}
+                              </p>
+                            )}
+                          </label>
+                        </div>
+                      )}
                     </div>
                   </>
                 ) : (
@@ -561,11 +527,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
 
                     {imagePreview && (
                       <div className="w-full slide-up delay-2">
-                        <img 
-                          src={imagePreview} 
-                          alt="Featured" 
-                          className="w-full max-w-2xl mx-auto h-48 sm:h-64 object-cover rounded-lg"
-                        />
+                        <img src={imagePreview} alt="Featured" className="w-full max-w-2xl mx-auto h-48 sm:h-64 object-cover rounded-lg" />
                       </div>
                     )}
 
@@ -575,11 +537,8 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                       </div>
                     )}
 
-                    <div 
-                      className="prose prose-sm sm:prose-lg dark:prose-invert max-w-none form-text px-2"
-                      dangerouslySetInnerHTML={{ 
-                        __html: formData.content || "<p>Start writing your content to see the preview...</p>" 
-                      }}
+                    <div className="prose prose-sm sm:prose-lg dark:prose-invert max-w-none form-text px-2" 
+                         dangerouslySetInnerHTML={{ __html: formData.content || "<p>Start writing your content to see the preview...</p>" }} 
                     />
                   </div>
                 )}
@@ -593,7 +552,6 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
               Your posts will appear instantly on the home page after publishing.
             </p>
           </div>
-
         </div>
       </div>
 
@@ -619,8 +577,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                       Important: Posts cannot be edited after publishing
                     </p>
                     <p className="text-sm text-lime-800 dark:text-lime-200 form-text leading-relaxed">
-                      Once published, you can only <strong className="text-lime-900 dark:text-lime-100">delete</strong> and recreate posts. 
-                      Make sure everything looks perfect before proceeding!
+                      Once published, you can only <strong className="text-lime-900 dark:text-lime-100">delete</strong> and recreate posts. Make sure everything looks perfect before proceeding!
                     </p>
                   </div>
                 </div>
@@ -633,7 +590,7 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
                     <Eye className="w-3 h-3 text-white" />
                   </div>
                   <span className="text-sm font-semibold text-lime-900 dark:text-lime-100 form-text">
-                    💡 Tip: Use the Preview button to review your post first
+                    Tip: Use the Preview button to review your post first
                   </span>
                 </div>
               </div>
@@ -646,7 +603,6 @@ export const AdminPanel = ({ onPreview, onSavePost, editingPost }: AdminPanelPro
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          
           <AlertDialogFooter className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-lime-200 dark:border-lime-700">
             <AlertDialogCancel 
               onClick={() => {
